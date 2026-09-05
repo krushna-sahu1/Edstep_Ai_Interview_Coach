@@ -48,7 +48,7 @@ export default function JobSetupForm({ onStart, isLoading }: JobSetupFormProps) 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!hasAtLeastOneInput) {
-      setErrorMsg('Add your resume or GitHub link to get personalized questions.');
+      setErrorMsg('Add your resume or GitHub link to unlock personalized questions.');
       return;
     }
 
@@ -85,19 +85,20 @@ export default function JobSetupForm({ onStart, isLoading }: JobSetupFormProps) 
   return (
     <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
       <div>
-        <h2 style={{ fontSize: '1.4rem', fontWeight: 700, marginBottom: '0.4rem' }}>
-          Personalized Tech Job Interview
+        <span className="v2-eyebrow">Engineering Track</span>
+        <h2 style={{ fontSize: '1.75rem', marginBottom: '8px' }}>
+          Technical Job Interview <em>Simulation</em>
         </h2>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '0.92rem', lineHeight: 1.5 }}>
-          Provide your resume or GitHub profile (or both). Our AI engineering lead will craft deep-dive questions based on your actual repositories, stack, and project achievements.
+        <p style={{ color: 'var(--v2-muted)', fontSize: '14.5px', lineHeight: 1.6 }}>
+          Provide your resume or GitHub profile (or both). Our AI engineering manager will construct personalized probing questions based on your actual repositories and stack.
         </p>
       </div>
 
       {/* Resume Upload Dropzone */}
       <div>
-        <label className="input-label">Resume (PDF)</label>
+        <label className="ed-label">Candidate Resume (PDF)</label>
         <div
-          className={`file-dropzone ${dragOver ? 'active' : ''}`}
+          className={`ed-dropzone ${dragOver ? 'active' : ''}`}
           onClick={() => fileInputRef.current?.click()}
           onDragOver={(e) => {
             e.preventDefault();
@@ -114,24 +115,24 @@ export default function JobSetupForm({ onStart, isLoading }: JobSetupFormProps) 
             style={{ display: 'none' }}
           />
           {file ? (
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem' }}>
-              <FileText size={28} color="var(--primary)" />
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
+              <FileText size={28} color="var(--v2-green)" />
               <div style={{ textAlign: 'left' }}>
-                <div style={{ fontWeight: 600, fontSize: '0.95rem' }}>{file.name}</div>
-                <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                  {(file.size / (1024 * 1024)).toFixed(2)} MB • Ready to analyze
+                <div style={{ fontWeight: 600, fontSize: '15px', color: 'var(--v2-white)' }}>{file.name}</div>
+                <div style={{ fontSize: '12px', color: 'var(--v2-muted)', fontFamily: 'var(--v2-sans)' }}>
+                  {(file.size / (1024 * 1024)).toFixed(2)} MB • In-Memory Parsing Ready
                 </div>
               </div>
-              <CheckCircle2 size={20} color="var(--accent-emerald)" style={{ marginLeft: 'auto' }} />
+              <CheckCircle2 size={20} color="var(--v2-green)" style={{ marginLeft: 'auto' }} />
             </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
-              <UploadCloud size={32} color="var(--text-secondary)" />
-              <div style={{ fontWeight: 600, fontSize: '0.95rem' }}>
-                Click to upload or drag & drop your resume
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+              <UploadCloud size={30} color="var(--v2-dim)" />
+              <div style={{ fontWeight: 600, fontSize: '15px', color: 'var(--v2-white)' }}>
+                Click to upload or drag &amp; drop your resume
               </div>
-              <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                PDF format only (analyzed in-memory, never stored permanently)
+              <div style={{ fontSize: '12px', color: 'var(--v2-dim)', fontFamily: 'var(--v2-sans)' }}>
+                Processed in-memory only — never permanently stored
               </div>
             </div>
           )}
@@ -140,15 +141,15 @@ export default function JobSetupForm({ onStart, isLoading }: JobSetupFormProps) 
 
       {/* GitHub URL */}
       <div>
-        <label className="input-label">GitHub Profile URL or Username</label>
+        <label className="ed-label">GitHub Profile URL or Username</label>
         <div style={{ position: 'relative' }}>
           <div
             style={{
               position: 'absolute',
-              left: '1rem',
+              left: '14px',
               top: '50%',
               transform: 'translateY(-50%)',
-              color: 'var(--text-secondary)',
+              color: 'var(--v2-dim)',
               display: 'flex',
               alignItems: 'center',
             }}
@@ -157,8 +158,8 @@ export default function JobSetupForm({ onStart, isLoading }: JobSetupFormProps) 
           </div>
           <input
             type="text"
-            className="text-input"
-            style={{ paddingLeft: '2.75rem' }}
+            className="ed-input"
+            style={{ paddingLeft: '44px' }}
             placeholder="e.g. https://github.com/torvalds or torvalds"
             value={githubUrl}
             onChange={(e) => {
@@ -167,24 +168,25 @@ export default function JobSetupForm({ onStart, isLoading }: JobSetupFormProps) 
             }}
           />
         </div>
-        <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.4rem' }}>
-          We will inspect your top 3 recently pushed public repositories and project READMEs.
+        <p style={{ fontSize: '12px', color: 'var(--v2-dim)', marginTop: '6px', fontFamily: 'var(--v2-sans)' }}>
+          We inspect your top 3 most recently pushed public repositories &amp; README architecture summaries.
         </p>
       </div>
 
-      {/* Inline Validation / Status */}
+      {/* Validation Warning */}
       {!hasAtLeastOneInput && (
         <div
           style={{
-            padding: '0.75rem 1rem',
-            borderRadius: 'var(--radius-md)',
-            background: 'rgba(245, 158, 11, 0.08)',
-            border: '1px solid rgba(245, 158, 11, 0.25)',
-            color: '#fcd34d',
-            fontSize: '0.85rem',
+            padding: '12px 16px',
+            borderRadius: 'var(--radius-sm)',
+            background: 'rgba(240, 185, 92, 0.08)',
+            border: '1px solid rgba(240, 185, 92, 0.25)',
+            color: 'var(--v2-amber)',
+            fontSize: '13.5px',
             display: 'flex',
             alignItems: 'center',
-            gap: '0.5rem',
+            gap: '8px',
+            fontFamily: 'var(--v2-sans)',
           }}
         >
           <AlertCircle size={16} />
@@ -195,15 +197,16 @@ export default function JobSetupForm({ onStart, isLoading }: JobSetupFormProps) 
       {errorMsg && (
         <div
           style={{
-            padding: '0.75rem 1rem',
-            borderRadius: 'var(--radius-md)',
+            padding: '12px 16px',
+            borderRadius: 'var(--radius-sm)',
             background: 'rgba(244, 63, 94, 0.1)',
             border: '1px solid rgba(244, 63, 94, 0.3)',
             color: '#fda4af',
-            fontSize: '0.85rem',
+            fontSize: '13.5px',
             display: 'flex',
             alignItems: 'center',
-            gap: '0.5rem',
+            gap: '8px',
+            fontFamily: 'var(--v2-sans)',
           }}
         >
           <AlertCircle size={16} />
@@ -214,19 +217,19 @@ export default function JobSetupForm({ onStart, isLoading }: JobSetupFormProps) 
       {/* Start Button */}
       <button
         type="submit"
-        className="btn btn-primary"
+        className="v2-pill v2-pill-solid"
         disabled={!hasAtLeastOneInput || isPreparing || isLoading}
-        style={{ padding: '0.9rem', fontSize: '1.05rem', marginTop: '0.5rem' }}
+        style={{ width: '100%', padding: '14px', fontSize: '15.5px', marginTop: '6px' }}
       >
         {isPreparing || isLoading ? (
           <>
-            <Loader2 size={20} className="animate-spin" />
-            Analyzing Profile & Initializing...
+            <Loader2 size={18} className="animate-spin" />
+            Analyzing Profile &amp; Preparing Session...
           </>
         ) : (
           <>
             Start Spoken Interview
-            <ArrowRight size={18} />
+            <ArrowRight size={17} />
           </>
         )}
       </button>

@@ -17,34 +17,35 @@ export default function FeedbackCard({
   mode,
 }: FeedbackCardProps) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       {/* Flagged Concerns (Highlighted prominently at top if present) */}
       {flaggedConcerns && flaggedConcerns.length > 0 && (
         <div
-          className="glass-panel"
+          className="v2-card"
           style={{
-            padding: '1.5rem',
+            padding: '24px',
             background: 'rgba(244, 63, 94, 0.08)',
-            borderColor: 'rgba(244, 63, 94, 0.3)',
+            borderColor: 'rgba(244, 63, 94, 0.35)',
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.75rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
             <AlertOctagon size={20} color="#f43f5e" />
-            <h4 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#fecdd3' }}>
-              {mode === 'visa' ? 'Consular Red Flags & Refusal Risks' : 'Critical Performance Concerns'}
+            <h4 style={{ fontSize: '1.2rem', color: '#fecdd3', margin: 0 }}>
+              {mode === 'visa' ? 'Consular Red Flags & Refusal Risks' : 'Critical Performance Flags'}
             </h4>
           </div>
-          <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.5rem', paddingLeft: 0 }}>
+          <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '8px', paddingLeft: 0 }}>
             {flaggedConcerns.map((concern, idx) => (
               <li
                 key={idx}
                 style={{
                   display: 'flex',
                   alignItems: 'flex-start',
-                  gap: '0.5rem',
-                  fontSize: '0.9rem',
+                  gap: '8px',
+                  fontSize: '14px',
                   color: '#fda4af',
-                  lineHeight: 1.5,
+                  lineHeight: 1.6,
+                  fontFamily: 'var(--v2-body)',
                 }}
               >
                 <span style={{ color: '#f43f5e', fontWeight: 800 }}>•</span>
@@ -60,41 +61,42 @@ export default function FeedbackCard({
         style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-          gap: '1.5rem',
+          gap: '20px',
         }}
       >
         {/* Strengths */}
-        <div className="glass-panel" style={{ padding: '1.75rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1.25rem' }}>
+        <div className="v2-card" style={{ padding: '28px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '18px' }}>
             <div
               style={{
-                width: '32px',
-                height: '32px',
-                borderRadius: '8px',
-                background: 'rgba(16, 185, 129, 0.15)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
+                width: '36px',
+                height: '36px',
+                borderRadius: '10px',
+                background: 'rgba(63, 169, 106, 0.12)',
+                border: '1px solid rgba(63, 169, 106, 0.3)',
+                display: 'grid',
+                placeItems: 'center',
               }}
             >
-              <CheckCircle2 size={18} color="var(--accent-emerald)" />
+              <CheckCircle2 size={18} color="var(--v2-green)" />
             </div>
-            <h4 style={{ fontSize: '1.05rem', fontWeight: 700 }}>Key Strengths Demonstrated</h4>
+            <h4 style={{ fontSize: '1.25rem', margin: 0 }}>Key Strengths Demonstrated</h4>
           </div>
-          <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.85rem', paddingLeft: 0 }}>
+          <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '12px', paddingLeft: 0 }}>
             {strengths.map((item, idx) => (
               <li
                 key={idx}
                 style={{
                   display: 'flex',
                   alignItems: 'flex-start',
-                  gap: '0.6rem',
-                  fontSize: '0.9rem',
-                  color: 'var(--text-secondary)',
-                  lineHeight: 1.5,
+                  gap: '10px',
+                  fontSize: '14px',
+                  color: 'var(--v2-white)',
+                  lineHeight: 1.6,
+                  fontFamily: 'var(--v2-body)',
                 }}
               >
-                <CheckCircle2 size={16} color="var(--accent-emerald)" style={{ flexShrink: 0, marginTop: '3px' }} />
+                <CheckCircle2 size={16} color="var(--v2-green)" style={{ flexShrink: 0, marginTop: '4px' }} />
                 <span>{item}</span>
               </li>
             ))}
@@ -102,37 +104,38 @@ export default function FeedbackCard({
         </div>
 
         {/* Growth Areas */}
-        <div className="glass-panel" style={{ padding: '1.75rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1.25rem' }}>
+        <div className="v2-card" style={{ padding: '28px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '18px' }}>
             <div
               style={{
-                width: '32px',
-                height: '32px',
-                borderRadius: '8px',
-                background: 'rgba(245, 158, 11, 0.15)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
+                width: '36px',
+                height: '36px',
+                borderRadius: '10px',
+                background: 'rgba(167, 139, 250, 0.12)',
+                border: '1px solid rgba(167, 139, 250, 0.3)',
+                display: 'grid',
+                placeItems: 'center',
               }}
             >
-              <TrendingUp size={18} color="var(--accent-amber)" />
+              <TrendingUp size={18} color="var(--v2-purple)" />
             </div>
-            <h4 style={{ fontSize: '1.05rem', fontWeight: 700 }}>Areas for Growth & Polish</h4>
+            <h4 style={{ fontSize: '1.25rem', margin: 0 }}>Areas for Growth &amp; Polish</h4>
           </div>
-          <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.85rem', paddingLeft: 0 }}>
+          <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '12px', paddingLeft: 0 }}>
             {weaknesses.map((item, idx) => (
               <li
                 key={idx}
                 style={{
                   display: 'flex',
                   alignItems: 'flex-start',
-                  gap: '0.6rem',
-                  fontSize: '0.9rem',
-                  color: 'var(--text-secondary)',
-                  lineHeight: 1.5,
+                  gap: '10px',
+                  fontSize: '14px',
+                  color: 'var(--v2-white)',
+                  lineHeight: 1.6,
+                  fontFamily: 'var(--v2-body)',
                 }}
               >
-                <TrendingUp size={16} color="var(--accent-amber)" style={{ flexShrink: 0, marginTop: '3px' }} />
+                <TrendingUp size={16} color="var(--v2-purple)" style={{ flexShrink: 0, marginTop: '4px' }} />
                 <span>{item}</span>
               </li>
             ))}

@@ -18,74 +18,131 @@ export default function QuestionBreakdown({ feedbackList }: QuestionBreakdownPro
   const getRatingBadge = (rating?: string) => {
     switch (rating?.toLowerCase()) {
       case 'strong':
-        return <span className="badge badge-strong">Strong Response</span>;
+        return (
+          <span
+            style={{
+              padding: '3px 10px',
+              borderRadius: '99px',
+              fontSize: '11px',
+              fontWeight: 600,
+              letterSpacing: '0.08em',
+              textTransform: 'uppercase',
+              background: 'rgba(63, 169, 106, 0.12)',
+              border: '1px solid rgba(63, 169, 106, 0.35)',
+              color: 'var(--v2-green)',
+              fontFamily: 'var(--v2-sans)',
+            }}
+          >
+            Strong Response
+          </span>
+        );
       case 'adequate':
-        return <span className="badge badge-adequate">Adequate</span>;
+        return (
+          <span
+            style={{
+              padding: '3px 10px',
+              borderRadius: '99px',
+              fontSize: '11px',
+              fontWeight: 600,
+              letterSpacing: '0.08em',
+              textTransform: 'uppercase',
+              background: 'rgba(167, 139, 250, 0.12)',
+              border: '1px solid rgba(167, 139, 250, 0.35)',
+              color: 'var(--v2-purple)',
+              fontFamily: 'var(--v2-sans)',
+            }}
+          >
+            Adequate
+          </span>
+        );
       default:
-        return <span className="badge badge-warning">Needs Refinement</span>;
+        return (
+          <span
+            style={{
+              padding: '3px 10px',
+              borderRadius: '99px',
+              fontSize: '11px',
+              fontWeight: 600,
+              letterSpacing: '0.08em',
+              textTransform: 'uppercase',
+              background: 'rgba(240, 185, 92, 0.12)',
+              border: '1px solid rgba(240, 185, 92, 0.35)',
+              color: 'var(--v2-amber)',
+              fontFamily: 'var(--v2-sans)',
+            }}
+          >
+            Needs Refinement
+          </span>
+        );
     }
   };
 
   return (
-    <div className="glass-panel" style={{ padding: '2rem' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1.5rem' }}>
-        <MessageSquare size={20} color="var(--primary)" />
-        <h3 style={{ fontSize: '1.15rem', fontWeight: 700 }}>
+    <div className="v2-card" style={{ padding: '32px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '24px' }}>
+        <MessageSquare size={20} color="var(--v2-purple)" />
+        <h3 style={{ fontSize: '1.4rem', margin: 0 }}>
           Question-by-Question Spoken Dialogue Review
         </h3>
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
         {feedbackList.map((item, index) => {
           const isExpanded = expandedIndex === index;
           return (
             <div
               key={index}
               style={{
-                border: '1px solid var(--border-color)',
+                border: '1px solid var(--v2-line)',
                 borderRadius: 'var(--radius-md)',
                 overflow: 'hidden',
-                background: isExpanded ? 'rgba(255, 255, 255, 0.03)' : 'transparent',
-                transition: 'background 0.2s ease',
+                background: isExpanded ? 'var(--v2-card2)' : 'rgba(20, 16, 33, 0.4)',
+                transition: 'all 0.22s ease',
               }}
             >
-              {/* Header Toggle */}
+              {/* Accordion Header */}
               <div
                 onClick={() => toggleExpand(index)}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
-                  padding: '1.15rem 1.25rem',
+                  padding: '16px 20px',
                   cursor: 'pointer',
                   userSelect: 'none',
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', flex: 1, paddingRight: '1rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, paddingRight: '12px' }}>
                   <span
                     style={{
                       width: '24px',
                       height: '24px',
                       borderRadius: '50%',
-                      background: 'rgba(99, 102, 241, 0.2)',
-                      color: '#a5b4fc',
+                      background: 'rgba(167, 139, 250, 0.15)',
+                      color: 'var(--v2-purple)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      fontSize: '0.8rem',
+                      fontSize: '11px',
                       fontWeight: 700,
                       flexShrink: 0,
+                      fontFamily: 'var(--v2-mono)',
                     }}
                   >
                     {index + 1}
                   </span>
-                  <span style={{ fontWeight: 600, fontSize: '0.95rem', color: 'var(--text-primary)' }}>
+                  <span style={{ fontWeight: 500, fontSize: '15px', color: 'var(--v2-white)', fontFamily: 'var(--v2-sans)' }}>
                     {item.question}
                   </span>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                   {getRatingBadge(item.rating)}
-                  {isExpanded ? <ChevronUp size={18} color="var(--text-muted)" /> : <ChevronDown size={18} color="var(--text-muted)" />}
+                  {isExpanded ? (
+                    <ChevronUp size={18} color="var(--v2-muted)" />
+                  ) : (
+                    <ChevronDown size={18} color="var(--v2-muted)" />
+                  )}
                 </div>
               </div>
 
@@ -93,39 +150,39 @@ export default function QuestionBreakdown({ feedbackList }: QuestionBreakdownPro
               {isExpanded && (
                 <div
                   style={{
-                    padding: '0 1.25rem 1.25rem 1.25rem',
-                    borderTop: '1px solid var(--border-color)',
+                    padding: '0 20px 20px',
+                    borderTop: '1px solid var(--v2-line)',
                     display: 'flex',
                     flexDirection: 'column',
-                    gap: '1rem',
+                    gap: '14px',
                   }}
                 >
-                  <div style={{ marginTop: '0.85rem' }}>
-                    <div style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '0.25rem' }}>
-                      Your Spoken Answer Summary:
+                  <div style={{ marginTop: '14px' }}>
+                    <div style={{ fontSize: '11px', fontWeight: 600, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--v2-dim)', marginBottom: '4px', fontFamily: 'var(--v2-sans)' }}>
+                      Spoken Answer Summary:
                     </div>
-                    <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', lineHeight: 1.5, fontStyle: 'italic' }}>
+                    <p style={{ fontSize: '14px', color: 'var(--v2-muted)', lineHeight: 1.6, fontStyle: 'italic', margin: 0 }}>
                       "{item.answer_summary}"
                     </p>
                   </div>
 
                   <div
                     style={{
-                      background: 'rgba(99, 102, 241, 0.08)',
-                      border: '1px solid rgba(99, 102, 241, 0.2)',
+                      background: 'rgba(63, 169, 106, 0.06)',
+                      border: '1px solid rgba(63, 169, 106, 0.25)',
                       borderRadius: 'var(--radius-sm)',
-                      padding: '0.85rem 1rem',
+                      padding: '14px 16px',
                       display: 'flex',
                       alignItems: 'flex-start',
-                      gap: '0.6rem',
+                      gap: '10px',
                     }}
                   >
-                    <Lightbulb size={18} color="var(--primary)" style={{ flexShrink: 0, marginTop: '2px' }} />
+                    <Lightbulb size={18} color="var(--v2-green)" style={{ flexShrink: 0, marginTop: '2px' }} />
                     <div>
-                      <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#c7d2fe', marginBottom: '0.2rem' }}>
+                      <div style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--v2-green)', marginBottom: '3px', fontFamily: 'var(--v2-sans)' }}>
                         Coach Recommendation:
                       </div>
-                      <p style={{ fontSize: '0.88rem', color: 'var(--text-primary)', lineHeight: 1.5 }}>
+                      <p style={{ fontSize: '14px', color: 'var(--v2-white)', lineHeight: 1.6, margin: 0 }}>
                         {item.feedback}
                       </p>
                     </div>

@@ -12,15 +12,15 @@ interface ScoreOverviewProps {
 export default function ScoreOverview({ overallScore, categoryScores, mode }: ScoreOverviewProps) {
   const getScoreVerdict = (score: number) => {
     if (mode === 'job') {
-      if (score >= 90) return { label: 'Exceptional — Strong Hire', color: '#10b981' };
-      if (score >= 80) return { label: 'Solid Candidate — Ready for Live Interviews', color: '#38bdf8' };
-      if (score >= 70) return { label: 'Promising — Needs Refinement & Polish', color: '#f59e0b' };
-      return { label: 'Needs Intensive Practice', color: '#f43f5e' };
+      if (score >= 90) return { label: 'Exceptional — Ready for Top Tech', color: 'var(--v2-green)' };
+      if (score >= 80) return { label: 'Solid Candidate — Ready for Live Rounds', color: 'var(--v2-purple)' };
+      if (score >= 70) return { label: 'Promising — Needs Minor Polish', color: 'var(--v2-amber)' };
+      return { label: 'Needs Intensive Practice', color: 'var(--v2-rose)' };
     } else {
-      if (score >= 88) return { label: 'High Visa Approval Probability', color: '#10b981' };
-      if (score >= 78) return { label: 'Solid Case — Minor Clarifications Advised', color: '#38bdf8' };
-      if (score >= 68) return { label: 'Consular Scrutiny Risk Detected', color: '#f59e0b' };
-      return { label: 'High Refusal Risk (214b Concerns)', color: '#f43f5e' };
+      if (score >= 88) return { label: 'High Approval Probability', color: 'var(--v2-green)' };
+      if (score >= 78) return { label: 'Solid Case — Minor Clarifications Advised', color: 'var(--v2-purple)' };
+      if (score >= 68) return { label: 'Consular Scrutiny Risk Detected', color: 'var(--v2-amber)' };
+      return { label: 'High Refusal Risk (214b Concerns)', color: 'var(--v2-rose)' };
     }
   };
 
@@ -28,40 +28,67 @@ export default function ScoreOverview({ overallScore, categoryScores, mode }: Sc
 
   return (
     <div
-      className="glass-panel"
+      className="v2-card"
       style={{
-        padding: '2rem',
+        padding: '36px',
         display: 'grid',
         gridTemplateColumns: 'auto 1fr',
-        gap: '2.5rem',
+        gap: '40px',
         alignItems: 'center',
       }}
     >
-      {/* Dial / Circular Badge */}
-      <div style={{ textAlign: 'center', minWidth: '180px' }}>
+      {/* EdSteps Score Badge Dial */}
+      <div style={{ textAlign: 'center', minWidth: '190px' }}>
         <div
-          className="score-circle"
           style={{
-            borderColor: verdict.color,
-            boxShadow: `0 0 40px ${verdict.color}40`,
+            width: '144px',
+            height: '144px',
+            borderRadius: '50%',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: 'radial-gradient(circle at 34% 28%, #251c40, #110c1e)',
+            border: `2px solid ${verdict.color}`,
+            boxShadow: `0 0 50px ${verdict.color}35`,
+            margin: '0 auto',
           }}
         >
-          <span className="score-number" style={{ color: verdict.color }}>
+          <span
+            style={{
+              fontFamily: 'var(--v2-serif)',
+              fontSize: '3.2rem',
+              fontWeight: 400,
+              color: verdict.color,
+              lineHeight: 1,
+            }}
+          >
             {overallScore}
           </span>
-          <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+          <span
+            style={{
+              fontSize: '11px',
+              letterSpacing: '0.18em',
+              textTransform: 'uppercase',
+              color: 'var(--v2-dim)',
+              marginTop: '4px',
+              fontFamily: 'var(--v2-sans)',
+            }}
+          >
             Overall Score
           </span>
         </div>
-        <div style={{ marginTop: '0.85rem' }}>
+
+        <div style={{ marginTop: '14px' }}>
           <span
             style={{
-              fontSize: '0.85rem',
-              fontWeight: 700,
+              fontSize: '13.5px',
+              fontWeight: 600,
               color: verdict.color,
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '0.35rem',
+              gap: '6px',
+              fontFamily: 'var(--v2-sans)',
             }}
           >
             {overallScore >= 75 ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
@@ -70,26 +97,27 @@ export default function ScoreOverview({ overallScore, categoryScores, mode }: Sc
         </div>
       </div>
 
-      {/* Category Bars */}
+      {/* Category Progress Bars */}
       <div>
-        <h3 style={{ fontSize: '1.05rem', fontWeight: 700, marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <Award size={18} color="var(--primary)" />
-          Category Performance Breakdown
-        </h3>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          {Object.entries(categoryScores).map(([category, score]) => {
-            const barColor = score >= 85 ? '#10b981' : score >= 75 ? '#38bdf8' : score >= 65 ? '#f59e0b' : '#f43f5e';
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '20px' }}>
+          <Award size={18} color="var(--v2-green)" />
+          <h3 style={{ fontSize: '1.25rem', margin: 0 }}>Category Rubric Breakdown</h3>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+          {Object.entries(categoryScores).map(([category, score], idx) => {
+            const barColor = idx % 2 === 0 ? 'var(--v2-green)' : 'var(--v2-purple)';
             return (
               <div key={category}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.35rem', fontSize: '0.88rem' }}>
-                  <span style={{ color: 'var(--text-primary)', fontWeight: 600 }}>{category}</span>
-                  <span style={{ color: barColor, fontWeight: 700 }}>{score}%</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', fontSize: '13.5px' }}>
+                  <span style={{ color: 'var(--v2-white)', fontWeight: 500, fontFamily: 'var(--v2-sans)' }}>{category}</span>
+                  <span style={{ color: barColor, fontWeight: 600, fontFamily: 'var(--v2-mono)' }}>{score}%</span>
                 </div>
                 <div
                   style={{
-                    height: '8px',
+                    height: '7px',
                     width: '100%',
-                    background: 'rgba(255, 255, 255, 0.08)',
+                    background: 'rgba(255, 255, 255, 0.06)',
                     borderRadius: '99px',
                     overflow: 'hidden',
                   }}

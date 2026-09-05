@@ -18,34 +18,38 @@ export default function LiveTranscript({ transcripts, mode }: LiveTranscriptProp
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+      {/* Transcript Header */}
       <div
         style={{
           display: 'flex',
           alignItems: 'center',
-          gap: '0.5rem',
-          padding: '0.75rem 1rem',
-          borderBottom: '1px solid var(--border-color)',
-          fontSize: '0.875rem',
-          fontWeight: 600,
-          color: 'var(--text-secondary)',
+          gap: '8px',
+          padding: '14px 20px',
+          borderBottom: '1px solid var(--v2-line)',
+          background: 'rgba(20, 16, 33, 0.6)',
         }}
       >
-        <MessageSquare size={16} />
-        <span>Live Spoken Transcript</span>
+        <MessageSquare size={16} color="var(--v2-purple)" />
+        <span style={{ fontSize: '12px', fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--v2-muted)', fontFamily: 'var(--v2-sans)' }}>
+          Spoken Transcript Stream
+        </span>
         <span
           style={{
             marginLeft: 'auto',
-            fontSize: '0.75rem',
-            padding: '0.15rem 0.5rem',
+            fontSize: '11px',
+            padding: '3px 10px',
             borderRadius: '99px',
-            background: 'rgba(255, 255, 255, 0.06)',
+            background: 'rgba(255, 255, 255, 0.05)',
+            color: 'var(--v2-muted)',
+            fontFamily: 'var(--v2-mono)',
           }}
         >
           {transcripts.length} exchanges
         </span>
       </div>
 
-      <div className="transcript-box" style={{ flex: 1, minHeight: '300px' }}>
+      {/* Transcript List */}
+      <div className="ed-transcript-container" style={{ flex: 1, minHeight: '340px' }}>
         {transcripts.length === 0 ? (
           <div
             style={{
@@ -54,38 +58,39 @@ export default function LiveTranscript({ transcripts, mode }: LiveTranscriptProp
               alignItems: 'center',
               justifyContent: 'center',
               height: '100%',
-              minHeight: '220px',
-              color: 'var(--text-muted)',
+              minHeight: '260px',
+              color: 'var(--v2-dim)',
               textAlign: 'center',
               padding: '2rem',
-              gap: '0.75rem',
+              gap: '12px',
             }}
           >
-            <Bot size={36} style={{ opacity: 0.4 }} />
-            <p style={{ fontSize: '0.9rem', maxWidth: '320px', lineHeight: 1.5 }}>
-              Waiting for connection. The AI {mode === 'job' ? 'interviewer' : 'consular officer'} will speak the opening question aloud.
+            <Bot size={38} style={{ opacity: 0.35, color: 'var(--v2-purple)' }} />
+            <p style={{ fontSize: '14px', maxWidth: '340px', lineHeight: 1.6, color: 'var(--v2-muted)' }}>
+              Establishing stream with Deepgram. The AI {mode === 'job' ? 'engineering lead' : 'consular officer'} will speak the opening question.
             </p>
           </div>
         ) : (
           transcripts.map((item) => (
             <div
               key={item.id}
-              className={`message-bubble ${item.speaker}`}
+              className={`ed-bubble ${item.speaker}`}
               style={{
                 display: 'flex',
-                gap: '0.75rem',
+                gap: '12px',
                 alignItems: 'flex-start',
               }}
             >
               <div
                 style={{
-                  width: '24px',
-                  height: '24px',
+                  width: '26px',
+                  height: '26px',
                   borderRadius: '50%',
                   background:
                     item.speaker === 'agent'
-                      ? 'linear-gradient(135deg, #06b6d4, #3b82f6)'
-                      : 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+                      ? 'rgba(167, 139, 250, 0.2)'
+                      : 'rgba(63, 169, 106, 0.2)',
+                  border: `1px solid ${item.speaker === 'agent' ? 'rgba(167, 139, 250, 0.4)' : 'rgba(63, 169, 106, 0.4)'}`,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -94,9 +99,9 @@ export default function LiveTranscript({ transcripts, mode }: LiveTranscriptProp
                 }}
               >
                 {item.speaker === 'agent' ? (
-                  <Bot size={13} color="#ffffff" />
+                  <Bot size={13} color="var(--v2-purple)" />
                 ) : (
-                  <User size={13} color="#ffffff" />
+                  <User size={13} color="var(--v2-green)" />
                 )}
               </div>
               <div style={{ flex: 1 }}>
@@ -105,21 +110,28 @@ export default function LiveTranscript({ transcripts, mode }: LiveTranscriptProp
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    marginBottom: '0.25rem',
-                    fontSize: '0.75rem',
-                    color: 'var(--text-muted)',
+                    marginBottom: '4px',
+                    fontSize: '11px',
+                    color: 'var(--v2-dim)',
+                    fontFamily: 'var(--v2-sans)',
                   }}
                 >
-                  <span style={{ fontWeight: 600, color: item.speaker === 'agent' ? '#38bdf8' : '#a5b4fc' }}>
+                  <span
+                    style={{
+                      fontWeight: 600,
+                      letterSpacing: '0.04em',
+                      color: item.speaker === 'agent' ? 'var(--v2-purple)' : 'var(--v2-green)',
+                    }}
+                  >
                     {item.speaker === 'agent'
                       ? mode === 'job'
                         ? 'Engineering Lead'
                         : 'Consular Officer'
-                      : 'You'}
+                      : 'You (Spoken)'}
                   </span>
-                  <span>{item.timestamp}</span>
+                  <span style={{ fontFamily: 'var(--v2-mono)' }}>{item.timestamp}</span>
                 </div>
-                <div style={{ fontSize: '0.92rem', lineHeight: 1.5, wordBreak: 'break-word' }}>
+                <div style={{ fontSize: '14.5px', lineHeight: 1.6, wordBreak: 'break-word', color: 'var(--v2-white)' }}>
                   {item.text}
                 </div>
               </div>

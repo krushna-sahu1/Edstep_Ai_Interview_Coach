@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Globe2, ShieldCheck, ArrowRight, Loader2, Info } from 'lucide-react';
+import { ShieldCheck, ArrowRight, Loader2, Info } from 'lucide-react';
 import { VISA_OPTIONS, VisaOption } from '@/lib/visa-data';
 import { VisaContextBundle } from '@/types/interview';
 
@@ -47,25 +47,26 @@ export default function VisaSetupForm({ onStart, isLoading }: VisaSetupFormProps
   return (
     <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
       <div>
-        <h2 style={{ fontSize: '1.4rem', fontWeight: 700, marginBottom: '0.4rem' }}>
-          Embassy Visa Consular Interview
+        <span className="v2-eyebrow">Immigration &amp; Study Track</span>
+        <h2 style={{ fontSize: '1.75rem', marginBottom: '8px' }}>
+          Embassy Consular Interview <em>Simulation</em>
         </h2>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '0.92rem', lineHeight: 1.5 }}>
-          Select your destination visa category. Our AI Consular Officer will conduct an authentic, verbal visa interview to probe your intentions, funding, program details, and home-country ties.
+        <p style={{ color: 'var(--v2-muted)', fontSize: '14.5px', lineHeight: 1.6 }}>
+          Select your destination visa category. Our AI Consular Officer conducts an authentic, verbal visa adjudication to probe your intent, funding, academic program, and home-country ties.
         </p>
       </div>
 
       {/* Visa Selection Dropdown */}
       <div>
-        <label className="input-label">Select Visa Category</label>
+        <label className="ed-label">Target Visa Category</label>
         <div style={{ position: 'relative' }}>
           <select
-            className="select-input"
+            className="ed-select"
             value={selectedVisaId}
             onChange={(e) => setSelectedVisaId(e.target.value)}
           >
             {VISA_OPTIONS.map((v) => (
-              <option key={v.id} value={v.id} style={{ background: '#0f172a', color: '#f8fafc' }}>
+              <option key={v.id} value={v.id} style={{ background: '#141021', color: '#F5F4FA' }}>
                 {v.name} ({v.destinationCountry})
               </option>
             ))}
@@ -73,41 +74,42 @@ export default function VisaSetupForm({ onStart, isLoading }: VisaSetupFormProps
         </div>
       </div>
 
-      {/* Selected Visa Info Card */}
+      {/* Selected Visa Info Card (EdSteps Card2 Style) */}
       {selectedVisa && (
         <div
+          className="v2-card2"
           style={{
-            padding: '1.25rem',
-            borderRadius: 'var(--radius-md)',
-            background: 'rgba(16, 185, 129, 0.06)',
-            border: '1px solid rgba(16, 185, 129, 0.2)',
+            padding: '20px',
+            background: 'rgba(63, 169, 106, 0.05)',
+            borderColor: 'rgba(63, 169, 106, 0.25)',
             display: 'flex',
             flexDirection: 'column',
-            gap: '0.75rem',
+            gap: '10px',
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-            <ShieldCheck size={20} color="var(--accent-emerald)" />
-            <span style={{ fontWeight: 700, fontSize: '0.95rem', color: '#6ee7b7' }}>
-              Consular Protocol: {selectedVisa.code}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <ShieldCheck size={18} color="var(--v2-green)" />
+            <span style={{ fontWeight: 600, fontSize: '14px', color: 'var(--v2-green)', fontFamily: 'var(--v2-sans)' }}>
+              Protocol Active: {selectedVisa.code}
             </span>
           </div>
-          <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+          <p style={{ fontSize: '13.5px', color: 'var(--v2-white)', lineHeight: 1.6 }}>
             {selectedVisa.description}
           </p>
           <div
             style={{
-              fontSize: '0.8rem',
-              color: 'var(--text-muted)',
+              fontSize: '12.5px',
+              color: 'var(--v2-muted)',
               display: 'flex',
               alignItems: 'flex-start',
-              gap: '0.5rem',
-              marginTop: '0.25rem',
+              gap: '6px',
+              marginTop: '4px',
+              fontFamily: 'var(--v2-sans)',
             }}
           >
-            <Info size={15} style={{ flexShrink: 0, marginTop: '2px' }} />
+            <Info size={14} style={{ flexShrink: 0, marginTop: '2px', color: 'var(--v2-purple)' }} />
             <span>
-              <strong>Note:</strong> You don't need to fill out forms for funding or ties. The officer will probe these conversationally through targeted questions.
+              <strong>Conversational Probing:</strong> You do not need to submit financial paperwork in advance. The consular officer will probe funding and non-immigrant intent dynamically.
             </span>
           </div>
         </div>
@@ -116,12 +118,13 @@ export default function VisaSetupForm({ onStart, isLoading }: VisaSetupFormProps
       {errorMsg && (
         <div
           style={{
-            padding: '0.75rem 1rem',
-            borderRadius: 'var(--radius-md)',
+            padding: '12px 16px',
+            borderRadius: 'var(--radius-sm)',
             background: 'rgba(244, 63, 94, 0.1)',
             border: '1px solid rgba(244, 63, 94, 0.3)',
             color: '#fda4af',
-            fontSize: '0.85rem',
+            fontSize: '13.5px',
+            fontFamily: 'var(--v2-sans)',
           }}
         >
           {errorMsg}
@@ -131,24 +134,19 @@ export default function VisaSetupForm({ onStart, isLoading }: VisaSetupFormProps
       {/* Start Button */}
       <button
         type="submit"
-        className="btn btn-primary"
+        className="v2-pill v2-pill-solid"
         disabled={!selectedVisaId || isPreparing || isLoading}
-        style={{
-          padding: '0.9rem',
-          fontSize: '1.05rem',
-          background: 'linear-gradient(135deg, #059669 0%, #10b981 50%, #06b6d4 100%)',
-          boxShadow: '0 4px 15px rgba(16, 185, 129, 0.3)',
-        }}
+        style={{ width: '100%', padding: '14px', fontSize: '15.5px', marginTop: '6px' }}
       >
         {isPreparing || isLoading ? (
           <>
-            <Loader2 size={20} className="animate-spin" />
+            <Loader2 size={18} className="animate-spin" />
             Initializing Consular Session...
           </>
         ) : (
           <>
             Start Consular Interview
-            <ArrowRight size={18} />
+            <ArrowRight size={17} />
           </>
         )}
       </button>

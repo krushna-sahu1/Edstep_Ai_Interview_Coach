@@ -22,7 +22,6 @@ export default function InterviewRoomPage() {
   const [hasStarted, setHasStarted] = useState(false);
   const [permissionError, setPermissionError] = useState<string | null>(null);
 
-  // 1. Retrieve session configuration
   useEffect(() => {
     if (!sessionId) return;
 
@@ -41,13 +40,11 @@ export default function InterviewRoomPage() {
       }
     }
 
-    // Default fallback prompt if refreshed directly without storage
     setSystemPrompt(
       'You are a senior hiring engineering lead conducting an interactive technical interview. Greet the candidate and ask your opening question.'
     );
   }, [sessionId]);
 
-  // 2. Initialize Voice Agent Hook
   const {
     connectionState,
     speakerState,
@@ -68,7 +65,6 @@ export default function InterviewRoomPage() {
     },
   });
 
-  // 3. Connect once prompt is available
   useEffect(() => {
     if (systemPrompt && !hasStarted && connectionState === 'idle') {
       setHasStarted(true);
@@ -76,7 +72,6 @@ export default function InterviewRoomPage() {
     }
   }, [systemPrompt, hasStarted, connectionState, startSession]);
 
-  // 4. Handle End Interview & Trigger Scoring
   const handleEndInterview = async () => {
     setIsEnding(true);
     endSession();
@@ -107,7 +102,6 @@ export default function InterviewRoomPage() {
         throw new Error(data.error || 'Failed to complete interview scoring.');
       }
 
-      // Store evaluation in session storage for immediate instant display
       if (typeof window !== 'undefined') {
         sessionStorage.setItem(`interview_result_${sessionId}`, JSON.stringify(data.result));
       }
@@ -121,119 +115,130 @@ export default function InterviewRoomPage() {
   };
 
   return (
-    <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '1.5rem 1.5rem 4rem' }}>
-      {/* Top Header */}
+    <div style={{ maxWidth: '1240px', margin: '0 auto', padding: '32px 24px 60px' }}>
+      {/* Top Breadcrumb Bar */}
       <div
         style={{
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          marginBottom: '1.5rem',
+          marginBottom: '24px',
         }}
       >
         <Link
           href="/"
+          className="v2-pill v2-pill-ghost"
           style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '0.4rem',
-            color: 'var(--text-secondary)',
+            padding: '7px 16px',
+            fontSize: '13px',
             textDecoration: 'none',
-            fontSize: '0.9rem',
-            fontWeight: 500,
           }}
         >
-          <ArrowLeft size={16} />
+          <ArrowLeft size={14} />
           Exit to Setup
         </Link>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <span
-            className="badge"
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div
+            className="v2-badge"
             style={{
-              background: mode === 'job' ? 'rgba(99, 102, 241, 0.15)' : 'rgba(16, 185, 129, 0.15)',
-              color: mode === 'job' ? '#a5b4fc' : '#6ee7b7',
-              border: `1px solid ${mode === 'job' ? 'rgba(99, 102, 241, 0.3)' : 'rgba(16, 185, 129, 0.3)'}`,
+              marginBottom: 0,
+              padding: '6px 14px',
+              fontSize: '11px',
+              background: mode === 'job' ? 'rgba(167, 139, 250, 0.12)' : 'rgba(63, 169, 106, 0.12)',
+              borderColor: mode === 'job' ? 'rgba(167, 139, 250, 0.35)' : 'rgba(63, 169, 106, 0.35)',
+              color: mode === 'job' ? 'var(--v2-purple)' : 'var(--v2-green)',
             }}
           >
-            {mode === 'job' ? 'Technical Job Mode' : 'Consular Visa Mode'}
-          </span>
+            <span
+              className="v2-badge-dot"
+              style={{
+                background: mode === 'job' ? 'var(--v2-purple)' : 'var(--v2-green)',
+              }}
+            />
+            {mode === 'job' ? 'Engineering Technical Interview' : 'Consular Visa Adjudication'}
+          </div>
+
           <span
             style={{
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '0.35rem',
-              fontSize: '0.8rem',
-              color: connectionState === 'connected' ? 'var(--accent-emerald)' : 'var(--accent-amber)',
+              gap: '6px',
+              fontSize: '12px',
+              fontFamily: 'var(--v2-mono)',
+              color: connectionState === 'connected' ? 'var(--v2-green)' : 'var(--v2-amber)',
             }}
           >
             <span
               style={{
-                width: '8px',
-                height: '8px',
+                width: '7px',
+                height: '7px',
                 borderRadius: '50%',
-                background: connectionState === 'connected' ? 'var(--accent-emerald)' : 'var(--accent-amber)',
+                background: connectionState === 'connected' ? 'var(--v2-green)' : 'var(--v2-amber)',
               }}
             />
             {connectionState === 'connected'
-              ? 'Deepgram Voice Live'
+              ? 'Voice Live'
               : connectionState === 'connecting'
-              ? 'Connecting Voice...'
+              ? 'Connecting...'
               : connectionState === 'reconnecting'
               ? 'Reconnecting...'
-              : 'Voice Idle'}
+              : 'Idle'}
           </span>
         </div>
       </div>
 
-      {/* Permission / Reconnect Warning Banner */}
+      {/* Permission / Error Warning */}
       {(permissionError || errorMessage) && (
         <div
           style={{
-            marginBottom: '1.5rem',
-            padding: '1rem 1.25rem',
-            borderRadius: 'var(--radius-md)',
-            background: 'rgba(244, 63, 94, 0.12)',
-            border: '1px solid rgba(244, 63, 94, 0.35)',
+            marginBottom: '20px',
+            padding: '14px 18px',
+            borderRadius: 'var(--radius-sm)',
+            background: 'rgba(244, 63, 94, 0.1)',
+            border: '1px solid rgba(244, 63, 94, 0.3)',
             color: '#fecdd3',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            gap: '1rem',
+            gap: '12px',
+            fontSize: '13.5px',
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <AlertCircle size={18} color="#f43f5e" style={{ flexShrink: 0 }} />
-            <span style={{ fontSize: '0.9rem' }}>{permissionError || errorMessage}</span>
+            <span>{permissionError || errorMessage}</span>
           </div>
           <button
             type="button"
-            className="btn btn-secondary"
+            className="v2-pill v2-pill-ghost"
             onClick={() => startSession()}
-            style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem' }}
+            style={{ padding: '6px 14px', fontSize: '12px' }}
           >
-            <RefreshCw size={14} /> Retry
+            <RefreshCw size={13} /> Retry
           </button>
         </div>
       )}
 
-      {/* Main Room Layout: Two Columns (Visualizer + Live Transcript) */}
+      {/* Main Room Layout: Two Columns */}
       <div
-        className="glass-panel"
+        className="v2-card"
         style={{
           display: 'grid',
-          gridTemplateColumns: 'minmax(320px, 1fr) minmax(360px, 1.2fr)',
+          gridTemplateColumns: 'minmax(320px, 1fr) minmax(380px, 1.25fr)',
+          padding: 0,
           overflow: 'hidden',
-          minHeight: '560px',
+          minHeight: '580px',
         }}
       >
-        {/* Left: Audio Visualizer & Voice Orb */}
+        {/* Left: Audio Visualizer & Concentric Ring Hub */}
         <div
           style={{
-            borderRight: '1px solid var(--border-color)',
+            borderRight: '1px solid var(--v2-line)',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'center',
-            background: 'rgba(10, 15, 26, 0.5)',
+            background: 'rgba(17, 13, 28, 0.5)',
           }}
         >
           <AudioVisualizer
@@ -246,13 +251,13 @@ export default function InterviewRoomPage() {
         </div>
 
         {/* Right: Live Transcript Stream */}
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', background: 'var(--v2-card)' }}>
           <LiveTranscript transcripts={transcripts} mode={mode} />
         </div>
       </div>
 
-      {/* Bottom Controls Bar */}
-      <div style={{ marginTop: '1rem' }} className="glass-panel">
+      {/* Bottom Controls */}
+      <div className="v2-card" style={{ marginTop: '16px', padding: 0, overflow: 'hidden' }}>
         <InterviewControls
           connectionState={connectionState}
           isMuted={isMuted}
@@ -262,38 +267,39 @@ export default function InterviewRoomPage() {
         />
       </div>
 
-      {/* Full-Screen Loading Overlay when scoring */}
+      {/* Loading Overlay */}
       {isEnding && (
         <div
           style={{
             position: 'fixed',
             inset: 0,
             zIndex: 999,
-            background: 'rgba(8, 12, 20, 0.92)',
+            background: 'rgba(11, 8, 20, 0.94)',
             backdropFilter: 'blur(16px)',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: '1.5rem',
+            gap: '20px',
             textAlign: 'center',
-            padding: '2rem',
+            padding: '24px',
           }}
         >
-          <div className="voice-orb speaking-agent" style={{ width: '110px', height: '110px' }}>
-            <Sparkles size={44} color="#ffffff" />
+          <div className="v2-hub-core-orb speaking-agent" style={{ width: '100px', height: '100px' }}>
+            <Sparkles size={38} color="var(--v2-green)" />
           </div>
           <div>
-            <h2 style={{ fontSize: '1.75rem', fontWeight: 800, marginBottom: '0.5rem' }}>
-              Compiling Interview Evaluation
+            <span className="v2-eyebrow">EdSteps Assessment Engine</span>
+            <h2 style={{ fontSize: '2rem', marginBottom: '8px' }}>
+              Compiling Interview <em>Evaluation</em>
             </h2>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', maxWidth: '440px' }}>
-              Claude is analyzing your verbal answers against the {mode === 'job' ? 'technical rubric and STAR method' : 'consular credibility and non-immigrant intent criteria'}...
+            <p style={{ color: 'var(--v2-muted)', fontSize: '15px', maxWidth: '460px', lineHeight: 1.6 }}>
+              Claude is analyzing your verbal exchanges against the {mode === 'job' ? 'technical rubric and STAR method' : 'consular credibility and non-immigrant intent criteria'}...
             </p>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--primary)' }}>
-            <Loader2 size={20} className="animate-spin" />
-            <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>Calculating score & actionable recommendations</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--v2-green)', fontSize: '13px', fontFamily: 'var(--v2-mono)' }}>
+            <Loader2 size={16} className="animate-spin" />
+            <span>Calculating score and actionable advice...</span>
           </div>
         </div>
       )}

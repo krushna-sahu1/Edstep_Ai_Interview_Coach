@@ -43,10 +43,10 @@ export default function InterviewControls({
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          padding: '1rem 1.5rem',
-          borderTop: '1px solid var(--border-color)',
-          background: 'rgba(8, 12, 20, 0.4)',
-          borderRadius: '0 0 var(--radius-lg) var(--radius-lg)',
+          padding: '16px 24px',
+          borderTop: '1px solid var(--v2-line)',
+          background: 'rgba(17, 14, 30, 0.7)',
+          borderRadius: '0 0 var(--radius-xl) var(--radius-xl)',
         }}
       >
         {/* Timer */}
@@ -54,49 +54,49 @@ export default function InterviewControls({
           style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '0.5rem',
-            fontSize: '0.9rem',
-            color: isNearTimeLimit ? 'var(--accent-amber)' : 'var(--text-secondary)',
+            gap: '8px',
+            fontSize: '14px',
+            color: isNearTimeLimit ? 'var(--v2-amber)' : 'var(--v2-muted)',
             fontWeight: 600,
+            fontFamily: 'var(--v2-sans)',
           }}
         >
-          <Clock size={18} />
-          <span>{formattedTime}</span>
-          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>/ 15:00 limit</span>
+          <Clock size={16} />
+          <span style={{ fontFamily: 'var(--v2-mono)' }}>{formattedTime}</span>
+          <span style={{ fontSize: '12px', color: 'var(--v2-dim)' }}>/ 15:00 limit</span>
           {isNearTimeLimit && (
             <span
               style={{
-                fontSize: '0.75rem',
-                padding: '0.15rem 0.5rem',
+                fontSize: '11px',
+                padding: '2px 8px',
                 borderRadius: '99px',
-                background: 'rgba(245, 158, 11, 0.15)',
-                color: '#fbbf24',
+                background: 'rgba(240, 185, 92, 0.15)',
+                color: 'var(--v2-amber)',
               }}
             >
-              Session wrapping up soon
+              Session wrapping up
             </span>
           )}
         </div>
 
         {/* Action Controls */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           {/* Mute Button */}
           <button
             type="button"
-            className={`btn ${isMuted ? 'btn-danger' : 'btn-secondary'}`}
+            className={`v2-pill ${isMuted ? 'v2-pill-danger' : 'v2-pill-ghost'}`}
             onClick={onToggleMute}
             disabled={connectionState !== 'connected'}
-            title={isMuted ? 'Unmute microphone' : 'Mute microphone'}
-            style={{ padding: '0.65rem 1rem' }}
+            style={{ padding: '9px 18px', fontSize: '13.5px' }}
           >
             {isMuted ? (
               <>
-                <MicOff size={18} />
-                Unmute
+                <MicOff size={16} />
+                Unmute Mic
               </>
             ) : (
               <>
-                <Mic size={18} />
+                <Mic size={16} />
                 Mute Mic
               </>
             )}
@@ -105,13 +105,13 @@ export default function InterviewControls({
           {/* End Interview Button */}
           <button
             type="button"
-            className="btn btn-danger"
+            className="v2-pill v2-pill-danger"
             onClick={() => setShowConfirmModal(true)}
             disabled={isEnding}
-            style={{ padding: '0.65rem 1.25rem' }}
+            style={{ padding: '9px 20px', fontSize: '13.5px', fontWeight: 600 }}
           >
-            <PhoneOff size={18} />
-            End & Score Interview
+            <PhoneOff size={16} />
+            End &amp; Score Interview
           </button>
         </div>
       </div>
@@ -123,8 +123,8 @@ export default function InterviewControls({
             position: 'fixed',
             inset: 0,
             zIndex: 100,
-            background: 'rgba(0, 0, 0, 0.75)',
-            backdropFilter: 'blur(8px)',
+            background: 'rgba(11, 8, 20, 0.82)',
+            backdropFilter: 'blur(10px)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -132,53 +132,53 @@ export default function InterviewControls({
           }}
         >
           <div
-            className="glass-panel"
+            className="v2-card"
             style={{
               maxWidth: '440px',
               width: '100%',
-              padding: '2rem',
-              background: '#0f172a',
+              padding: '32px 28px',
               textAlign: 'center',
             }}
           >
             <div
               style={{
-                width: '3.5rem',
-                height: '3.5rem',
+                width: '48px',
+                height: '48px',
                 borderRadius: '50%',
                 background: 'rgba(244, 63, 94, 0.15)',
+                border: '1px solid rgba(244, 63, 94, 0.35)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                margin: '0 auto 1.25rem',
+                margin: '0 auto 16px',
               }}
             >
-              <AlertTriangle size={28} color="#f43f5e" />
+              <AlertTriangle size={24} color="#f43f5e" />
             </div>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '0.5rem' }}>
+            <h3 style={{ fontSize: '1.45rem', marginBottom: '8px' }}>
               End Spoken Interview?
             </h3>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.5, marginBottom: '1.75rem' }}>
+            <p style={{ color: 'var(--v2-muted)', fontSize: '14.5px', lineHeight: 1.6, marginBottom: '24px' }}>
               Are you ready to complete your interview? We will immediately compile your answers and run Claude's comprehensive evaluation report.
             </p>
-            <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center' }}>
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
               <button
                 type="button"
-                className="btn btn-secondary"
+                className="v2-pill v2-pill-ghost"
                 onClick={() => setShowConfirmModal(false)}
-                style={{ flex: 1 }}
+                style={{ flex: 1, padding: '12px' }}
               >
                 Continue Speaking
               </button>
               <button
                 type="button"
-                className="btn btn-danger"
+                className="v2-pill v2-pill-danger"
                 onClick={() => {
                   setShowConfirmModal(false);
                   onEndInterview();
                 }}
                 disabled={isEnding}
-                style={{ flex: 1 }}
+                style={{ flex: 1, padding: '12px' }}
               >
                 {isEnding ? 'Scoring...' : 'Yes, End Session'}
               </button>

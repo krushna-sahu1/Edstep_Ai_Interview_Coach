@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, RotateCcw, Printer, Share2, Sparkles, Loader2 } from 'lucide-react';
+import { ArrowLeft, RotateCcw, Printer, Loader2 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import ScoreOverview from '@/components/results/ScoreOverview';
 import FeedbackCard from '@/components/results/FeedbackCard';
@@ -23,7 +23,6 @@ export default function ResultsPage() {
   useEffect(() => {
     if (!sessionId) return;
 
-    // 1. Check local session storage first for immediate instant display
     if (typeof window !== 'undefined') {
       const cachedResult = sessionStorage.getItem(`interview_result_${sessionId}`);
       const cachedSession = sessionStorage.getItem(`interview_session_${sessionId}`);
@@ -43,10 +42,9 @@ export default function ResultsPage() {
           setResult(parsed);
           setLoading(false);
 
-          // Confetti celebration for score >= 78
           if (parsed.overall_score >= 78) {
             confetti({
-              particleCount: 80,
+              particleCount: 85,
               spread: 70,
               origin: { y: 0.6 },
             });
@@ -58,7 +56,6 @@ export default function ResultsPage() {
       }
     }
 
-    // 2. Fetch from database if not cached
     const fetchResults = async () => {
       try {
         const res = await fetch(`/api/interview/results/${sessionId}`);
@@ -69,7 +66,7 @@ export default function ResultsPage() {
 
           if (data.result.overall_score >= 78) {
             confetti({
-              particleCount: 80,
+              particleCount: 85,
               spread: 70,
               origin: { y: 0.6 },
             });
@@ -94,72 +91,68 @@ export default function ResultsPage() {
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          gap: '1rem',
+          gap: '16px',
         }}
       >
-        <Loader2 size={36} className="animate-spin" color="var(--primary)" />
-        <p style={{ color: 'var(--text-secondary)' }}>Loading evaluation report...</p>
+        <Loader2 size={36} className="animate-spin" color="var(--v2-green)" />
+        <p style={{ color: 'var(--v2-muted)', fontSize: '15px' }}>Loading evaluation report...</p>
       </div>
     );
   }
 
   if (!result) {
     return (
-      <div style={{ maxWidth: '600px', margin: '4rem auto', textAlign: 'center', padding: '2rem' }}>
-        <h2 style={{ fontSize: '1.5rem', marginBottom: '0.75rem' }}>Evaluation Report Not Found</h2>
-        <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
+      <div style={{ maxWidth: '640px', margin: '80px auto', textAlign: 'center', padding: '32px' }}>
+        <h2 style={{ fontSize: '1.8rem', marginBottom: '12px' }}>Evaluation Report Not Found</h2>
+        <p style={{ color: 'var(--v2-muted)', marginBottom: '24px' }}>
           We could not locate an evaluation report for this session. It may have expired or not yet finalized.
         </p>
-        <Link href="/" className="btn btn-primary">
-          Return to Setup
+        <Link href="/" className="v2-pill v2-pill-solid">
+          Return to Interview Lab
         </Link>
       </div>
     );
   }
 
   return (
-    <div style={{ maxWidth: '1080px', margin: '0 auto', padding: '2rem 1.5rem 6rem' }}>
+    <div style={{ maxWidth: '1120px', margin: '0 auto', padding: '40px 24px 80px' }}>
       {/* Top Bar */}
       <div
         style={{
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          marginBottom: '2rem',
+          marginBottom: '32px',
           flexWrap: 'wrap',
-          gap: '1rem',
+          gap: '16px',
         }}
       >
         <Link
           href="/"
+          className="v2-pill v2-pill-ghost"
           style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '0.4rem',
-            color: 'var(--text-secondary)',
-            textDecoration: 'none',
-            fontSize: '0.9rem',
-            fontWeight: 500,
+            padding: '8px 18px',
+            fontSize: '13.5px',
           }}
         >
-          <ArrowLeft size={16} />
+          <ArrowLeft size={15} />
           Back to Mode Selection
         </Link>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <button
             type="button"
-            className="btn btn-secondary"
+            className="v2-pill v2-pill-ghost"
             onClick={() => window.print()}
-            style={{ padding: '0.6rem 1rem', fontSize: '0.85rem' }}
+            style={{ padding: '8px 18px', fontSize: '13px' }}
           >
             <Printer size={15} />
             Print Report
           </button>
           <Link
             href="/"
-            className="btn btn-primary"
-            style={{ padding: '0.6rem 1.25rem', fontSize: '0.85rem' }}
+            className="v2-pill v2-pill-solid"
+            style={{ padding: '8px 22px', fontSize: '13px' }}
           >
             <RotateCcw size={15} />
             Practice Another Session
@@ -168,32 +161,21 @@ export default function ResultsPage() {
       </div>
 
       {/* Header Title */}
-      <div style={{ marginBottom: '2.5rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.5rem' }}>
-          <span
-            className="badge"
-            style={{
-              background: mode === 'job' ? 'rgba(99, 102, 241, 0.15)' : 'rgba(16, 185, 129, 0.15)',
-              color: mode === 'job' ? '#a5b4fc' : '#6ee7b7',
-              border: `1px solid ${mode === 'job' ? 'rgba(99, 102, 241, 0.3)' : 'rgba(16, 185, 129, 0.3)'}`,
-            }}
-          >
-            {mode === 'job' ? 'Technical Job Interview' : 'Consular Visa Interview'}
-          </span>
-          <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>
-            Session ID: {sessionId.slice(0, 8)}...
-          </span>
+      <div style={{ marginBottom: '36px' }}>
+        <div className="v2-badge" style={{ marginBottom: '12px' }}>
+          <span className="v2-badge-dot" />
+          {mode === 'job' ? 'Technical Job Performance' : 'Consular Visa Credibility Report'}
         </div>
-        <h1 style={{ fontSize: '2.2rem', fontWeight: 800, letterSpacing: '-0.03em' }}>
-          Spoken Performance Evaluation Report
+        <h1 style={{ fontSize: 'clamp(2.2rem, 4.5vw, 3.2rem)', marginBottom: '12px' }}>
+          Spoken Performance <em>Evaluation Report</em>
         </h1>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', marginTop: '0.35rem' }}>
-          Graded objectively using Claude AI based on conversational depth, technical/consular accuracy, STAR method structure, and delivery confidence.
+        <p style={{ color: 'var(--v2-muted)', fontSize: '16px', maxWidth: '720px', lineHeight: 1.7 }}>
+          Evaluated rigorously with Claude AI based on conversational depth, technical accuracy against GitHub/resume context, STAR method structure, and delivery confidence.
         </p>
       </div>
 
       {/* Score Overview */}
-      <div style={{ marginBottom: '2rem' }}>
+      <div style={{ marginBottom: '28px' }}>
         <ScoreOverview
           overallScore={result.overall_score}
           categoryScores={result.category_scores}
@@ -202,7 +184,7 @@ export default function ResultsPage() {
       </div>
 
       {/* Strengths & Weaknesses */}
-      <div style={{ marginBottom: '2rem' }}>
+      <div style={{ marginBottom: '28px' }}>
         <FeedbackCard
           strengths={result.strengths}
           weaknesses={result.weaknesses}
@@ -213,7 +195,7 @@ export default function ResultsPage() {
 
       {/* Question by Question Review */}
       {result.per_question_feedback && result.per_question_feedback.length > 0 && (
-        <div style={{ marginBottom: '2rem' }}>
+        <div style={{ marginBottom: '28px' }}>
           <QuestionBreakdown feedbackList={result.per_question_feedback} />
         </div>
       )}

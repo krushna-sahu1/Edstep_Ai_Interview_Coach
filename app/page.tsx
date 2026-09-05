@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Briefcase, Plane, Sparkles, Volume2, Shield, Award } from 'lucide-react';
+import { Briefcase, Plane, ArrowRight } from 'lucide-react';
 import JobSetupForm from '@/components/setup/JobSetupForm';
 import VisaSetupForm from '@/components/setup/VisaSetupForm';
 import { ContextBundle, InterviewMode } from '@/types/interview';
@@ -29,7 +29,6 @@ export default function HomePage() {
         throw new Error(data.error || 'Failed to start interview.');
       }
 
-      // Cache session data locally for immediate voice agent initialization in the room
       if (typeof window !== 'undefined') {
         sessionStorage.setItem(
           `interview_session_${data.session_id}`,
@@ -51,176 +50,195 @@ export default function HomePage() {
   };
 
   return (
-    <div style={{ maxWidth: '1080px', margin: '0 auto', padding: '3rem 1.5rem 6rem' }}>
-      {/* Hero Section */}
-      <div style={{ textAlign: 'center', marginBottom: '3.5rem' }}>
-        <div
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            padding: '0.4rem 1rem',
-            borderRadius: '9999px',
-            background: 'rgba(99, 102, 241, 0.1)',
-            border: '1px solid rgba(99, 102, 241, 0.25)',
-            color: '#c7d2fe',
-            fontSize: '0.85rem',
-            fontWeight: 600,
-            marginBottom: '1.25rem',
-          }}
-        >
-          <Sparkles size={15} color="var(--primary)" />
-          Real-Time Voice AI • Low Latency Spoken Practice
-        </div>
-        <h1
-          style={{
-            fontSize: 'clamp(2.2rem, 5vw, 3.4rem)',
-            fontWeight: 800,
-            letterSpacing: '-0.03em',
-            lineHeight: 1.15,
-            marginBottom: '1.25rem',
-          }}
-        >
-          Ace Your Spoken Interview With{' '}
-          <span
+    <div>
+      {/* Hero Section styled with EdSteps typography & layout */}
+      <section style={{ padding: '80px 0 48px' }}>
+        <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '0 24px', textAlign: 'center' }}>
+          <div className="v2-badge">
+            <span className="v2-badge-dot" />
+            EdSteps AI Interview Lab
+          </div>
+
+          <h1
             style={{
-              background: 'var(--primary-gradient)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
+              fontSize: 'clamp(2.5rem, 5.5vw, 4.1rem)',
+              lineHeight: 1.14,
+              marginBottom: '20px',
             }}
           >
-            Live AI Conversation
-          </span>
-        </h1>
-        <p
-          style={{
-            color: 'var(--text-secondary)',
-            fontSize: '1.1rem',
-            maxWidth: '680px',
-            margin: '0 auto',
-            lineHeight: 1.6,
-          }}
-        >
-          Experience realistic, spoken dialogues with real-time turn detection and follow-ups. Choose technical engineering preparation or strict consular visa grilling.
-        </p>
+            Every interview decision.<br />
+            <em>Mastered in spoken conversation.</em>
+          </h1>
 
-        {/* Mode Selector Tabs */}
-        <div style={{ marginTop: '2.5rem' }}>
-          <div className="mode-tabs">
-            <button
-              type="button"
-              className={`tab-btn ${activeMode === 'job' ? 'active' : ''}`}
-              onClick={() => setActiveMode('job')}
-            >
-              <Briefcase size={17} />
-              Job Interview Mode
-            </button>
-            <button
-              type="button"
-              className={`tab-btn ${activeMode === 'visa' ? 'active' : ''}`}
-              onClick={() => setActiveMode('visa')}
-            >
-              <Plane size={17} />
-              Visa Consular Mode
-            </button>
+          <p
+            style={{
+              fontSize: '18px',
+              maxWidth: '620px',
+              margin: '0 auto 32px',
+              color: 'var(--v2-white)',
+              lineHeight: 1.7,
+            }}
+          >
+            Practice real-time verbal interviews tailored to your actual resume, GitHub projects, or target visa protocol. Powered by Deepgram Voice Agent and graded by Claude.
+          </p>
+
+          {/* Mode Switcher Pills */}
+          <div style={{ marginBottom: '36px' }}>
+            <div className="mode-tabs-container">
+              <button
+                type="button"
+                className={`mode-tab-btn ${activeMode === 'job' ? 'active' : ''}`}
+                onClick={() => setActiveMode('job')}
+              >
+                <Briefcase size={16} color={activeMode === 'job' ? '#A78BFA' : 'currentColor'} />
+                Job Interview Mode
+              </button>
+              <button
+                type="button"
+                className={`mode-tab-btn ${activeMode === 'visa' ? 'active' : ''}`}
+                onClick={() => setActiveMode('visa')}
+              >
+                <Plane size={16} color={activeMode === 'visa' ? '#3FA96A' : 'currentColor'} />
+                Visa Consular Mode
+              </button>
+            </div>
           </div>
+        </div>
+      </section>
+
+      {/* Main Interactive Form Card */}
+      <section style={{ maxWidth: '780px', margin: '0 auto', padding: '0 24px 64px' }}>
+        <div className="v2-card">
+          {activeMode === 'job' ? (
+            <JobSetupForm onStart={handleStartInterview} isLoading={isStarting} />
+          ) : (
+            <VisaSetupForm onStart={handleStartInterview} isLoading={isStarting} />
+          )}
+        </div>
+      </section>
+
+      {/* EdSteps Infinite Ticker */}
+      <div className="v2-ticker" aria-hidden="true">
+        <div className="v2-ticker-track">
+          <span>Real-Time Voice</span>
+          <span>·</span>
+          <span><b>Sub-Second Streaming</b></span>
+          <span>·</span>
+          <span>Resume &amp; GitHub Ingest</span>
+          <span>·</span>
+          <span><b>F-1 &amp; H-1B Consular Simulation</b></span>
+          <span>·</span>
+          <span>Claude 3.5 Rubric Scoring</span>
+          <span>·</span>
+          <span><b>Zero Turn-Based Latency</b></span>
+          <span>·</span>
+          <span>STAR Method Analysis</span>
+          <span>·</span>
+          <span><b>In-Memory Privacy</b></span>
+          <span>·</span>
+          <span>Real-Time Voice</span>
+          <span>·</span>
+          <span><b>Sub-Second Streaming</b></span>
+          <span>·</span>
+          <span>Resume &amp; GitHub Ingest</span>
+          <span>·</span>
+          <span><b>F-1 &amp; H-1B Consular Simulation</b></span>
+          <span>·</span>
+          <span>Claude 3.5 Rubric Scoring</span>
+          <span>·</span>
+          <span><b>Zero Turn-Based Latency</b></span>
+          <span>·</span>
         </div>
       </div>
 
-      {/* Main Card */}
-      <div
-        className="glass-panel"
-        style={{
-          maxWidth: '680px',
-          margin: '0 auto',
-          padding: '2.5rem',
-        }}
-      >
-        {activeMode === 'job' ? (
-          <JobSetupForm onStart={handleStartInterview} isLoading={isStarting} />
-        ) : (
-          <VisaSetupForm onStart={handleStartInterview} isLoading={isStarting} />
-        )}
-      </div>
+      {/* EdSteps Ecosystem Capabilities Grid */}
+      <section style={{ padding: '80px 0 30px' }}>
+        <div style={{ maxWidth: '1180px', margin: '0 auto', padding: '0 24px' }}>
+          <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+            <span className="v2-eyebrow">EdSteps Interview Simulation Features</span>
+            <h2 style={{ fontSize: 'clamp(1.9rem, 3.8vw, 2.7rem)', margin: '8px 0 12px' }}>
+              Built for real candidates, <em>not test scripts.</em>
+            </h2>
+          </div>
 
-      {/* Feature Highlights Grid */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-          gap: '1.5rem',
-          marginTop: '4rem',
-        }}
-      >
-        <div className="glass-panel" style={{ padding: '1.75rem' }}>
           <div
             style={{
-              width: '2.75rem',
-              height: '2.75rem',
-              borderRadius: 'var(--radius-md)',
-              background: 'rgba(99, 102, 241, 0.15)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              marginBottom: '1rem',
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+              gap: '20px',
             }}
           >
-            <Volume2 size={22} color="var(--primary)" />
-          </div>
-          <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '0.4rem' }}>
-            Spoken, Not Written
-          </h3>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.5 }}>
-            No button clicks to record each response. Speak naturally and converse seamlessly with built-in voice activity detection (VAD).
-          </p>
-        </div>
+            {/* Feature 1 */}
+            <div className="v2-card" style={{ padding: '24px' }}>
+              <div
+                style={{
+                  width: '46px',
+                  height: '46px',
+                  borderRadius: '12px',
+                  background: 'rgba(63, 169, 106, 0.12)',
+                  border: '1px solid rgba(63, 169, 106, 0.3)',
+                  display: 'grid',
+                  placeItems: 'center',
+                  fontSize: '1.4rem',
+                  marginBottom: '16px',
+                }}
+              >
+                🎙️
+              </div>
+              <h3 style={{ fontSize: '1.3rem', marginBottom: '8px' }}>Conversational Spoken Flow</h3>
+              <p style={{ fontSize: '14px', color: 'var(--v2-white)', lineHeight: 1.6 }}>
+                Powered by Deepgram Voice Agent. Interrupt when needed, hear natural intonation, and experience realistic pressure with zero record-and-wait friction.
+              </p>
+            </div>
 
-        <div className="glass-panel" style={{ padding: '1.75rem' }}>
-          <div
-            style={{
-              width: '2.75rem',
-              height: '2.75rem',
-              borderRadius: 'var(--radius-md)',
-              background: 'rgba(16, 185, 129, 0.15)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              marginBottom: '1rem',
-            }}
-          >
-            <Shield size={22} color="var(--accent-emerald)" />
-          </div>
-          <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '0.4rem' }}>
-            Complete Data Privacy
-          </h3>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.5 }}>
-            Your uploaded resume PDF is processed entirely in memory and immediately discarded. No raw resumes are ever stored on disk.
-          </p>
-        </div>
+            {/* Feature 2 */}
+            <div className="v2-card" style={{ padding: '24px' }}>
+              <div
+                style={{
+                  width: '46px',
+                  height: '46px',
+                  borderRadius: '12px',
+                  background: 'rgba(167, 139, 250, 0.12)',
+                  border: '1px solid rgba(167, 139, 250, 0.3)',
+                  display: 'grid',
+                  placeItems: 'center',
+                  fontSize: '1.4rem',
+                  marginBottom: '16px',
+                }}
+              >
+                🔍
+              </div>
+              <h3 style={{ fontSize: '1.3rem', marginBottom: '8px' }}>Personalized Question Engine</h3>
+              <p style={{ fontSize: '14px', color: 'var(--v2-white)', lineHeight: 1.6 }}>
+                Your engineering interview probes your actual GitHub commit history and resume text. Your visa interview scrutinizes ties and funding conversationally.
+              </p>
+            </div>
 
-        <div className="glass-panel" style={{ padding: '1.75rem' }}>
-          <div
-            style={{
-              width: '2.75rem',
-              height: '2.75rem',
-              borderRadius: 'var(--radius-md)',
-              background: 'rgba(6, 182, 212, 0.15)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              marginBottom: '1rem',
-            }}
-          >
-            <Award size={22} color="var(--accent-cyan)" />
+            {/* Feature 3 */}
+            <div className="v2-card" style={{ padding: '24px' }}>
+              <div
+                style={{
+                  width: '46px',
+                  height: '46px',
+                  borderRadius: '12px',
+                  background: 'rgba(59, 130, 246, 0.12)',
+                  border: '1px solid rgba(59, 130, 246, 0.3)',
+                  display: 'grid',
+                  placeItems: 'center',
+                  fontSize: '1.4rem',
+                  marginBottom: '16px',
+                }}
+              >
+                📊
+              </div>
+              <h3 style={{ fontSize: '1.3rem', marginBottom: '8px' }}>Claude 3.5 Evaluation Report</h3>
+              <p style={{ fontSize: '14px', color: 'var(--v2-white)', lineHeight: 1.6 }}>
+                Receive an objective 0–100 score, rubric breakdown, delivery signals, per-question feedback, and flagged consular red flags upon session completion.
+              </p>
+            </div>
           </div>
-          <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '0.4rem' }}>
-            Claude AI Scoring Report
-          </h3>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.5 }}>
-            Receive an objective 0–100 score, rubric breakdown, delivery review, per-question critiques, and consular red-flag warnings.
-          </p>
         </div>
-      </div>
+      </section>
     </div>
   );
 }
