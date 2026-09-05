@@ -18,6 +18,7 @@ export default function InterviewRoomPage() {
   const [mode, setMode] = useState<InterviewMode>('job');
   const [systemPrompt, setSystemPrompt] = useState<string>('');
   const [contextBundle, setContextBundle] = useState<any>(null);
+  const [agentConfig, setAgentConfig] = useState<any>(null);
   const [isEnding, setIsEnding] = useState(false);
   const [hasStarted, setHasStarted] = useState(false);
   const [permissionError, setPermissionError] = useState<string | null>(null);
@@ -33,6 +34,9 @@ export default function InterviewRoomPage() {
           setMode(parsed.mode || 'job');
           setSystemPrompt(parsed.systemPrompt || '');
           setContextBundle(parsed.contextBundle || {});
+          if (parsed.agentConfig) {
+            setAgentConfig(parsed.agentConfig);
+          }
           return;
         } catch (e) {
           console.error('Failed to parse cached session:', e);
@@ -58,6 +62,7 @@ export default function InterviewRoomPage() {
   } = useDeepgramVoiceAgent({
     sessionId,
     systemPrompt,
+    agentConfig,
     onError: (err) => {
       if (err.toLowerCase().includes('permission') || err.toLowerCase().includes('notallowederror')) {
         setPermissionError('Microphone permission was denied. Please allow microphone access in your browser settings.');
@@ -212,10 +217,13 @@ export default function InterviewRoomPage() {
           <button
             type="button"
             className="v2-pill v2-pill-ghost"
-            onClick={() => startSession()}
-            style={{ padding: '6px 14px', fontSize: '12px' }}
+            onClick={() => {
+              setPermissionError(null);
+              startSession();
+            }}
+            style={{ padding: '6px 14px', fontSize: '12px', cursor: 'pointer' }}
           >
-            <RefreshCw size={13} /> Retry
+            <RefreshCw size={13} /> Retry Connection
           </button>
         </div>
       )}
@@ -252,7 +260,12 @@ export default function InterviewRoomPage() {
 
         {/* Right: Live Transcript Stream */}
         <div style={{ display: 'flex', flexDirection: 'column', background: 'var(--v2-card)' }}>
-          <LiveTranscript transcripts={transcripts} mode={mode} />
+          <LiveTranscript
+            transcripts={transcripts}
+            mode={mode}
+            connectionState={connectionState}
+            errorMessage={permissionError || errorMessage}
+          />
         </div>
       </div>
 

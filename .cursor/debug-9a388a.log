@@ -1,0 +1,11 @@
+{"sessionId":"9a388a","location":"probe","message":"ingest probe","timestamp":1}
+{"sessionId":"9a388a","location":"probe","message":"ingest probe","timestamp":1}
+{"sessionId":"9a388a","runId":"pre-fix","timestamp":1788639199258,"hypothesisId":"C","location":"deepgram-token/route.ts:GET","message":"minted temp token","data":{"tokenLen":485,"looksLikeJwt":true}}
+{"sessionId":"9a388a","location":"route-check","message":"ok","timestamp":1}
+{"sessionId":"9a388a","runId":"pre-fix","hypothesisId":"A","location":"useDeepgramVoiceAgent.ts:endSession","message":"endSession called","data":{"hadSession":false,"hadMic":false},"timestamp":1788639302500}
+{"sessionId":"9a388a","location":"alive","message":"alive","timestamp":1}
+{"sessionId":"9a388a","runId":"pre-fix","timestamp":1788639334913,"hypothesisId":"C","location":"deepgram-token/route.ts:GET","message":"minted temp token","data":{"tokenLen":485,"looksLikeJwt":true}}
+{"sessionId":"9a388a","runId":"pre-fix","hypothesisId":"A","location":"useDeepgramVoiceAgent.ts:endSession","message":"endSession called","data":{"hadSession":false,"hadMic":false},"timestamp":1788639396676}
+{"sessionId":"9a388a","runId":"pre-fix","hypothesisId":"A","location":"useDeepgramVoiceAgent.ts:endSession","message":"endSession called","data":{"hadSession":false,"hadMic":false},"timestamp":1788639400834}
+{"sessionId":"9a388a","runId":"pre-fix","hypothesisId":"A","location":"useDeepgramVoiceAgent.ts:endSession","message":"endSession called","data":{"hadSession":false,"hadMic":false},"timestamp":1788639406418}
+{"sessionId":"9a388a","runId":"pre-fix","hypothesisId":"A","location":"useDeepgramVoiceAgent.ts:endSession","message":"endSession called","data":{"hadSession":false,"hadMic":false},"timestamp":1788640426958}

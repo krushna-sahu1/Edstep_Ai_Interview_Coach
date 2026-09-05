@@ -1,15 +1,17 @@
 'use client';
 
 import React, { useEffect, useRef } from 'react';
-import { Bot, User, MessageSquare } from 'lucide-react';
-import { TranscriptItem } from '@/hooks/useDeepgramVoiceAgent';
+import { Bot, User, MessageSquare, Loader2, AlertTriangle, Radio } from 'lucide-react';
+import { TranscriptItem, AgentConnectionState } from '@/hooks/useDeepgramVoiceAgent';
 
 interface LiveTranscriptProps {
   transcripts: TranscriptItem[];
   mode: 'job' | 'visa';
+  connectionState?: AgentConnectionState;
+  errorMessage?: string | null;
 }
 
-export default function LiveTranscript({ transcripts, mode }: LiveTranscriptProps) {
+export default function LiveTranscript({ transcripts, mode, connectionState = 'idle', errorMessage }: LiveTranscriptProps) {
   const bottomRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -62,13 +64,66 @@ export default function LiveTranscript({ transcripts, mode }: LiveTranscriptProp
               color: 'var(--v2-dim)',
               textAlign: 'center',
               padding: '2rem',
-              gap: '12px',
+              gap: '14px',
             }}
           >
-            <Bot size={38} style={{ opacity: 0.35, color: 'var(--v2-purple)' }} />
-            <p style={{ fontSize: '14px', maxWidth: '340px', lineHeight: 1.6, color: 'var(--v2-muted)' }}>
-              Establishing stream with Deepgram. The AI {mode === 'job' ? 'engineering lead' : 'consular officer'} will speak the opening question.
-            </p>
+            {connectionState === 'connecting' ? (
+              <>
+                <div style={{ display: 'inline-flex', padding: '12px', borderRadius: '50%', background: 'rgba(167, 139, 250, 0.1)' }}>
+                  <Loader2 size={32} className="animate-spin" style={{ color: 'var(--v2-purple)' }} />
+                </div>
+                <div style={{ maxWidth: '340px' }}>
+                  <p style={{ fontSize: '14px', fontWeight: 500, color: 'var(--v2-text)', marginBottom: '4px' }}>
+                    Establishing secure stream with Deepgram
+                  </p>
+                  <p style={{ fontSize: '12.5px', color: 'var(--v2-muted)', lineHeight: 1.5 }}>
+                    Verifying microphone permissions, minting session token, and configuring AI speech models...
+                  </p>
+                </div>
+              </>
+            ) : connectionState === 'reconnecting' ? (
+              <>
+                <div style={{ display: 'inline-flex', padding: '12px', borderRadius: '50%', background: 'rgba(245, 158, 11, 0.1)' }}>
+                  <Loader2 size={32} className="animate-spin" style={{ color: 'var(--v2-amber)' }} />
+                </div>
+                <div style={{ maxWidth: '340px' }}>
+                  <p style={{ fontSize: '14px', fontWeight: 500, color: 'var(--v2-amber)', marginBottom: '4px' }}>
+                    Reconnecting to Deepgram
+                  </p>
+                  <p style={{ fontSize: '12.5px', color: 'var(--v2-muted)', lineHeight: 1.5 }}>
+                    Restoring audio WebSocket stream. Stand by...
+                  </p>
+                </div>
+              </>
+            ) : connectionState === 'error' || connectionState === 'disconnected' ? (
+              <>
+                <div style={{ display: 'inline-flex', padding: '12px', borderRadius: '50%', background: 'rgba(244, 63, 94, 0.1)' }}>
+                  <AlertTriangle size={32} style={{ color: '#f43f5e' }} />
+                </div>
+                <div style={{ maxWidth: '340px' }}>
+                  <p style={{ fontSize: '14px', fontWeight: 500, color: '#f43f5e', marginBottom: '4px' }}>
+                    Voice Connection Interrupted
+                  </p>
+                  <p style={{ fontSize: '12.5px', color: 'var(--v2-muted)', lineHeight: 1.5 }}>
+                    {errorMessage || 'Unable to establish WebSocket connection to Deepgram. Please click Retry above.'}
+                  </p>
+                </div>
+              </>
+            ) : (
+              <>
+                <div style={{ display: 'inline-flex', padding: '12px', borderRadius: '50%', background: 'rgba(63, 169, 106, 0.1)' }}>
+                  <Radio size={32} style={{ color: 'var(--v2-green)' }} />
+                </div>
+                <div style={{ maxWidth: '340px' }}>
+                  <p style={{ fontSize: '14px', fontWeight: 500, color: 'var(--v2-text)', marginBottom: '4px' }}>
+                    Voice Stream Active
+                  </p>
+                  <p style={{ fontSize: '12.5px', color: 'var(--v2-muted)', lineHeight: 1.5 }}>
+                    The AI {mode === 'job' ? 'engineering lead' : 'consular officer'} is preparing the opening question. Speak freely into your microphone.
+                  </p>
+                </div>
+              </>
+            )}
           </div>
         ) : (
           transcripts.map((item) => (

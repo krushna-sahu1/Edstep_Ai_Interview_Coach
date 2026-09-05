@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef } from 'react';
-import { UploadCloud, Github, FileText, CheckCircle2, AlertCircle, ArrowRight, Loader2 } from 'lucide-react';
+import { UploadCloud, FolderGit2, FileText, CheckCircle2, AlertCircle, ArrowRight, Loader2 } from 'lucide-react';
 import { JobContextBundle } from '@/types/interview';
 
 interface JobSetupFormProps {
@@ -154,7 +154,7 @@ export default function JobSetupForm({ onStart, isLoading }: JobSetupFormProps) 
               alignItems: 'center',
             }}
           >
-            <Github size={18} />
+            <FolderGit2 size={18} />
           </div>
           <input
             type="text"
