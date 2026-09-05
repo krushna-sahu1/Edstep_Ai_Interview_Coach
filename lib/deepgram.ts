@@ -18,7 +18,7 @@ export async function generateDeepgramTempToken(): Promise<string> {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        time_to_live_in_seconds: 3600, // 1 hour TTL to prevent premature token expiration
+        ttl_seconds: 3600,
       }),
       cache: 'no-store',
     });
@@ -42,20 +42,18 @@ export async function generateDeepgramTempToken(): Promise<string> {
 
 export function buildDeepgramAgentConfig(systemPrompt: string) {
   return {
-    type: 'Settings' as const,
     audio: {
       input: {
         encoding: 'linear16' as const,
         sampleRate: 16000,
-        sample_rate: 16000,
       },
       output: {
         encoding: 'linear16' as const,
         sampleRate: 24000,
-        sample_rate: 24000,
       },
     },
     agent: {
+      language: 'en',
       listen: {
         provider: {
           type: 'deepgram' as const,
@@ -72,7 +70,7 @@ export function buildDeepgramAgentConfig(systemPrompt: string) {
       speak: {
         provider: {
           type: 'deepgram' as const,
-          model: 'aura-asteria-en',
+          model: 'aura-2-thalia-en',
         },
       },
       greeting: 'Hello! I am your AI interviewer today. Whenever you are ready, let me know or introduce yourself.',

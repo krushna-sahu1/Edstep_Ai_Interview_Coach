@@ -9,3 +9,4 @@
 {"sessionId":"9a388a","runId":"pre-fix","hypothesisId":"A","location":"useDeepgramVoiceAgent.ts:endSession","message":"endSession called","data":{"hadSession":false,"hadMic":false},"timestamp":1788639400834}
 {"sessionId":"9a388a","runId":"pre-fix","hypothesisId":"A","location":"useDeepgramVoiceAgent.ts:endSession","message":"endSession called","data":{"hadSession":false,"hadMic":false},"timestamp":1788639406418}
 {"sessionId":"9a388a","runId":"pre-fix","hypothesisId":"A","location":"useDeepgramVoiceAgent.ts:endSession","message":"endSession called","data":{"hadSession":false,"hadMic":false},"timestamp":1788640426958}
+{"sessionId":"9a388a","runId":"pre-fix","hypothesisId":"A","location":"useDeepgramVoiceAgent.ts:endSession","message":"endSession called","data":{"hadSession":false,"hadMic":false},"timestamp":1788640523797}

@@ -20,7 +20,6 @@ export default function InterviewRoomPage() {
   const [contextBundle, setContextBundle] = useState<any>(null);
   const [agentConfig, setAgentConfig] = useState<any>(null);
   const [isEnding, setIsEnding] = useState(false);
-  const [hasStarted, setHasStarted] = useState(false);
   const [permissionError, setPermissionError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -70,12 +69,6 @@ export default function InterviewRoomPage() {
     },
   });
 
-  useEffect(() => {
-    if (systemPrompt && !hasStarted && connectionState === 'idle') {
-      setHasStarted(true);
-      startSession();
-    }
-  }, [systemPrompt, hasStarted, connectionState, startSession]);
 
   const handleEndInterview = async () => {
     setIsEnding(true);

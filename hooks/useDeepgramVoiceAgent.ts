@@ -21,18 +21,22 @@ interface UseDeepgramVoiceAgentOptions {
   onError?: (error: string) => void;
 }
 
+export interface EndSessionOptions {
+  silent?: boolean;
+}
+
 // #region agent log
 function agentDbg(hypothesisId: string, location: string, message: string, data?: Record<string, unknown>) {
   const payload = {
     sessionId: '9a388a',
-    runId: 'pre-fix',
+    runId: 'post-fix',
     hypothesisId,
     location,
     message,
     data: data || {},
     timestamp: Date.now(),
   };
-    fetch('/api/agent-debug', {
+  fetch('/api/agent-debug', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': '9a388a' },
     body: JSON.stringify(payload),
@@ -49,7 +53,6 @@ function parseWsUrl(urlStr: string) {
   }
 }
 
-// Global WebSocket logging interceptor for Deepgram telemetry
 function enableDeepgramWebSocketLogging() {
   if (typeof window === 'undefined' || (window as any).__dg_ws_instrumented) return;
   const OriginalWebSocket = window.WebSocket;
@@ -60,28 +63,23 @@ function enableDeepgramWebSocketLogging() {
     const isDeepgram = urlStr.includes('deepgram.com');
 
     if (isDeepgram) {
-      console.log(`%c[Deepgram WS] Connecting to: ${urlStr}`, 'color: #38bdf8; font-weight: bold;');
       const protoList = Array.isArray(protocols) ? protocols : protocols ? [protocols] : [];
-      const safeProtoList = protoList.map((p) => (p.length > 30 ? `${p.slice(0, 15)}...${p.slice(-6)}` : p));
-      console.log(`%c[Deepgram WS] Subprotocols:`, 'color: #94a3b8;', safeProtoList);
-      // #region agent log
       const parsedUrl = parseWsUrl(urlStr);
+      console.log(`%c[Deepgram WS] Connecting to: ${urlStr}`, 'color: #38bdf8; font-weight: bold;');
       agentDbg('B', 'useDeepgramVoiceAgent.ts:ws-construct', 'Deepgram WebSocket constructed', {
         host: parsedUrl.host,
         path: parsedUrl.path,
         protoCount: protoList.length,
-        protoPrefixes: protoList.map((p) => String(p).split(/[\s,]/)[0]).slice(0, 4),
+        protoPrefixes: protoList.map((p) => String(p).slice(0, 12)),
       });
-      // #endregion
     }
 
     const ws = protocols ? new OriginalWebSocket(url, protocols) : new OriginalWebSocket(url);
 
     if (isDeepgram) {
-      ws.addEventListener('open', (event) => {
-        console.log(`%c[Deepgram WS] WebSocket OPEN! Subprotocol selected: "${ws.protocol}"`, 'color: #4ade80; font-weight: bold;', event);
-        // #region agent log
+      ws.addEventListener('open', () => {
         const parsedUrl = parseWsUrl(urlStr);
+        console.log(`%c[Deepgram WS] WebSocket OPEN! Subprotocol selected: "${ws.protocol}"`, 'color: #4ade80; font-weight: bold;');
         agentDbg('B', 'useDeepgramVoiceAgent.ts:ws-open', 'Deepgram WebSocket OPEN', {
           readyState: ws.readyState,
           protocolLen: ws.protocol?.length || 0,
@@ -89,7 +87,6 @@ function enableDeepgramWebSocketLogging() {
           path: parsedUrl.path,
           selectedProtocolPrefix: (ws.protocol || '').split(' ')[0] || '(none)',
         });
-        // #endregion
       });
 
       ws.addEventListener('message', (event) => {
@@ -97,22 +94,18 @@ function enableDeepgramWebSocketLogging() {
           if (typeof event.data === 'string') {
             const parsed = JSON.parse(event.data);
             console.log(`%c[Deepgram WS] Message [${parsed.type || 'unknown'}]:`, 'color: #a78bfa;', parsed);
-          } else {
-            console.log(`%c[Deepgram WS] Binary frame received (${(event.data as any)?.byteLength || (event.data as any)?.size || 'unknown'} bytes)`, 'color: #64748b;');
           }
         } catch {
-          console.log(`%c[Deepgram WS] Message:`, 'color: #a78bfa;', event.data);
+          // ignore non-JSON
         }
       });
 
       ws.addEventListener('error', (event) => {
         console.error(`%c[Deepgram WS] WebSocket ERROR event:`, 'color: #f43f5e; font-weight: bold;', event);
-        // #region agent log
         agentDbg('B', 'useDeepgramVoiceAgent.ts:ws-error', 'Deepgram WebSocket ERROR', {
           readyState: ws.readyState,
           type: (event as any)?.type,
         });
-        // #endregion
       });
 
       ws.addEventListener('close', (event) => {
@@ -120,14 +113,12 @@ function enableDeepgramWebSocketLogging() {
           `%c[Deepgram WS] WebSocket CLOSED — Code: ${event.code}, Reason: "${event.reason || '(none)'}", WasClean: ${event.wasClean}`,
           'color: #f59e0b; font-weight: bold;'
         );
-        // #region agent log
         agentDbg('B', 'useDeepgramVoiceAgent.ts:ws-close', 'Deepgram WebSocket CLOSED', {
           code: event.code,
           reason: event.reason || '(none)',
           wasClean: event.wasClean,
           readyState: ws.readyState,
         });
-        // #endregion
       });
     }
 
@@ -140,6 +131,32 @@ function enableDeepgramWebSocketLogging() {
   WS.OPEN = OriginalWebSocket.OPEN;
   WS.CLOSING = OriginalWebSocket.CLOSING;
   WS.CLOSED = OriginalWebSocket.CLOSED;
+}
+
+function defaultAgentSettings(systemPrompt: string) {
+  return {
+    language: 'en',
+    listen: {
+      provider: {
+        type: 'deepgram',
+        model: 'nova-3',
+      },
+    },
+    think: {
+      provider: {
+        type: 'open_ai',
+        model: 'gpt-4o-mini',
+      },
+      prompt: systemPrompt,
+    },
+    speak: {
+      provider: {
+        type: 'deepgram',
+        model: 'aura-2-thalia-en',
+      },
+    },
+    greeting: 'Hello! I am your AI interviewer today. Whenever you are ready, let me know or introduce yourself.',
+  };
 }
 
 export function useDeepgramVoiceAgent({
@@ -162,58 +179,124 @@ export function useDeepgramVoiceAgent({
   const turnIndexRef = useRef(0);
   const currentAgentQuestionRef = useRef('');
   const currentUserAnswerRef = useRef('');
-  const volIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const volIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const runIdRef = useRef(0);
+  const intentionalCloseRef = useRef(false);
 
-  const syncTurnToServer = useCallback(
-    async (turn: SessionTurn) => {
+  const sessionIdRef = useRef(sessionId);
+  const systemPromptRef = useRef(systemPrompt);
+  const agentConfigRef = useRef(agentConfig);
+  const onErrorRef = useRef(onError);
+  const onTurnCompleteRef = useRef(onTurnComplete);
+
+  sessionIdRef.current = sessionId;
+  systemPromptRef.current = systemPrompt;
+  agentConfigRef.current = agentConfig;
+  onErrorRef.current = onError;
+  onTurnCompleteRef.current = onTurnComplete;
+
+  const syncTurnToServer = useCallback(async (turn: SessionTurn) => {
+    try {
+      await fetch('/api/interview/turn', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(turn),
+      });
+      onTurnCompleteRef.current?.(turn);
+    } catch (err) {
+      console.error('Failed to sync turn to server:', err);
+    }
+  }, []);
+
+  const cleanupResources = useCallback(() => {
+    if (volIntervalRef.current) {
+      clearInterval(volIntervalRef.current);
+      volIntervalRef.current = null;
+    }
+    if (micRef.current) {
       try {
-        await fetch('/api/interview/turn', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(turn),
-        });
-        if (onTurnComplete) onTurnComplete(turn);
-      } catch (err) {
-        console.error('Failed to sync turn to server:', err);
+        if (typeof micRef.current.stop === 'function') micRef.current.stop();
+      } catch {
+        // ignore
+      }
+      micRef.current = null;
+    }
+    if (playerRef.current) {
+      try {
+        if (typeof playerRef.current.dispose === 'function') playerRef.current.dispose();
+      } catch {
+        // ignore
+      }
+      playerRef.current = null;
+    }
+    if (sessionRef.current) {
+      try {
+        sessionRef.current.disconnect();
+      } catch {
+        // ignore
+      }
+      sessionRef.current = null;
+    }
+  }, []);
+
+  const endSession = useCallback(
+    (options?: EndSessionOptions) => {
+      intentionalCloseRef.current = true;
+      runIdRef.current += 1;
+      agentDbg('A', 'useDeepgramVoiceAgent.ts:endSession', 'endSession called', {
+        silent: !!options?.silent,
+        hadSession: !!sessionRef.current,
+        hadMic: !!micRef.current,
+      });
+      cleanupResources();
+      setSpeakerState('idle');
+      if (!options?.silent) {
+        setConnectionState('disconnected');
       }
     },
-    [onTurnComplete]
+    [cleanupResources]
   );
 
   const startSession = useCallback(async () => {
     if (typeof window === 'undefined') return;
+
+    intentionalCloseRef.current = false;
+    runIdRef.current += 1;
+    const runId = runIdRef.current;
+    cleanupResources();
     enableDeepgramWebSocketLogging();
 
     setConnectionState('connecting');
     setErrorMessage(null);
-    // #region agent log
+
+    const prompt = systemPromptRef.current;
+    const config = agentConfigRef.current;
+
     agentDbg('A', 'useDeepgramVoiceAgent.ts:startSession', 'startSession invoked', {
-      hasAgentConfig: !!agentConfig,
-      listenModel: agentConfig?.agent?.listen?.provider?.model || 'fallback-nova-3',
-      speakModel: agentConfig?.agent?.speak?.provider?.model || 'fallback-aura-asteria-en',
-      promptLen: systemPrompt?.length || 0,
+      runId,
+      hasAgentConfig: !!config,
+      listenModel: config?.agent?.listen?.provider?.model || 'fallback-nova-3',
+      speakModel: config?.agent?.speak?.provider?.model || 'fallback-aura-2-thalia-en',
+      promptLen: prompt?.length || 0,
     });
-    // #endregion
+
+    const stillCurrent = () => runId === runIdRef.current && !intentionalCloseRef.current;
 
     try {
-      // 1. Microphone Preflight Check to ensure user permission is resolved before connecting
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        // Immediately release preflight tracks so AgentMicrophone can open cleanly
         stream.getTracks().forEach((track) => track.stop());
-        // #region agent log
         agentDbg('E', 'useDeepgramVoiceAgent.ts:mic-preflight', 'mic preflight succeeded', {
+          runId,
           trackCount: stream.getTracks().length,
         });
-        // #endregion
       } catch (micErr: any) {
+        if (!stillCurrent()) return;
         console.error('[Deepgram] Microphone preflight check failed:', micErr);
-        // #region agent log
         agentDbg('E', 'useDeepgramVoiceAgent.ts:mic-preflight', 'mic preflight failed', {
           name: micErr?.name,
           msg: String(micErr?.message || ''),
         });
-        // #endregion
         const isDenied =
           micErr.name === 'NotAllowedError' ||
           micErr.name === 'PermissionDeniedError' ||
@@ -223,49 +306,48 @@ export function useDeepgramVoiceAgent({
           : `Microphone device error: ${micErr.message || micErr.name}`;
         setConnectionState('error');
         setErrorMessage(desc);
-        if (onError) onError(desc);
+        onErrorRef.current?.(desc);
         return;
       }
 
-      // 2. Dynamic import to avoid SSR errors
-      const { AgentSession, AgentMicrophone, AgentPlayer } = await import('@deepgram/agents');
+      if (!stillCurrent()) return;
 
-      // 3. Initialize Player for TTS output
+      const { AgentSession, AgentMicrophone, AgentPlayer } = await import('@deepgram/agents');
+      if (!stillCurrent()) return;
+
       const player = new AgentPlayer();
       playerRef.current = player;
 
-      // 4. Resolve agent and audio settings
-      const agentSettings = agentConfig?.agent || {
-        listen: {
-          provider: {
-            type: 'deepgram',
-            model: 'nova-3',
-          },
-        },
+      const requestedSpeak = config?.agent?.speak?.provider?.model as string | undefined;
+      const speakModel =
+        !requestedSpeak || requestedSpeak === 'aura-asteria-en' ? 'aura-2-thalia-en' : requestedSpeak;
+
+      const agentSettings = {
+        ...defaultAgentSettings(prompt),
+        ...(config?.agent || {}),
+        language: config?.agent?.language || 'en',
         think: {
-          provider: {
-            type: 'open_ai',
-            model: 'gpt-4o-mini',
-          },
-          prompt: systemPrompt,
+          ...defaultAgentSettings(prompt).think,
+          ...(config?.agent?.think || {}),
+          prompt: config?.agent?.think?.prompt || prompt,
         },
         speak: {
           provider: {
             type: 'deepgram',
-            model: 'aura-asteria-en',
+            ...(config?.agent?.speak?.provider || {}),
+            model: speakModel,
           },
         },
-        greeting: 'Hello! I am your AI interviewer today. Whenever you are ready, let me know or introduce yourself.',
       };
 
-      const audioConfig = agentConfig?.audio || {
+      const audioConfig = {
         input: {
-          encoding: 'linear16',
-          sampleRate: 16000,
+          encoding: config?.audio?.input?.encoding || 'linear16',
+          sampleRate: config?.audio?.input?.sampleRate || config?.audio?.input?.sample_rate || 16000,
         },
         output: {
-          encoding: 'linear16',
-          sampleRate: 24000,
+          encoding: config?.audio?.output?.encoding || 'linear16',
+          sampleRate: config?.audio?.output?.sampleRate || config?.audio?.output?.sample_rate || 24000,
         },
       };
 
@@ -274,7 +356,6 @@ export function useDeepgramVoiceAgent({
         audio: audioConfig,
       });
 
-      // 5. Initialize Voice Agent Session with tokenFactory
       const session = new AgentSession({
         auth: {
           tokenFactory: async () => {
@@ -287,14 +368,12 @@ export function useDeepgramVoiceAgent({
             const token = (await res.text()).trim();
             if (!token) throw new Error('Token endpoint returned empty response');
             console.log('[Deepgram] Bearer token acquired successfully');
-            // #region agent log
             agentDbg('C', 'useDeepgramVoiceAgent.ts:tokenFactory', 'tokenFactory resolved', {
               httpStatus: res.status,
               tokenLen: token.length,
               looksLikeJwt: token.startsWith('eyJ'),
               looksLikeJson: token.startsWith('{'),
             });
-            // #endregion
             return token;
           },
         },
@@ -302,15 +381,25 @@ export function useDeepgramVoiceAgent({
         audio: audioConfig,
       });
 
+      if (!stillCurrent()) {
+        try {
+          session.disconnect();
+        } catch {
+          // ignore
+        }
+        return;
+      }
+
       sessionRef.current = session;
 
-      // 6. Setup full session event listeners
       session.on('connecting', () => {
+        if (!stillCurrent()) return;
         console.log('[Deepgram AgentSession] Event: connecting');
         setConnectionState('connecting');
       });
 
       session.on('connected', () => {
+        if (!stillCurrent()) return;
         console.log('[Deepgram AgentSession] Event: connected (handshake complete)');
       });
 
@@ -319,63 +408,58 @@ export function useDeepgramVoiceAgent({
       });
 
       session.on('settings-applied', (msg: any) => {
+        if (!stillCurrent()) return;
         console.log('[Deepgram AgentSession] Event: settings-applied', msg);
-        // #region agent log
         agentDbg('D', 'useDeepgramVoiceAgent.ts:settings-applied', 'settings-applied received', {
           hasMsg: !!msg,
         });
-        // #endregion
         setConnectionState('connected');
         setSpeakerState('listening');
       });
 
       session.on('reconnecting', (attempt: number, delayMs: number) => {
+        if (!stillCurrent()) return;
         console.warn(`[Deepgram AgentSession] Event: reconnecting (attempt ${attempt}, delay ${delayMs}ms)`);
         setConnectionState('reconnecting');
       });
 
       session.on('disconnected', (reason: string) => {
+        if (intentionalCloseRef.current || !stillCurrent()) return;
         console.warn('[Deepgram AgentSession] Event: disconnected, reason:', reason);
-        // #region agent log
         agentDbg('A', 'useDeepgramVoiceAgent.ts:disconnected', 'AgentSession disconnected', {
           reason: String(reason || ''),
         });
-        // #endregion
         setConnectionState('disconnected');
         setErrorMessage(`Disconnected from voice session: ${reason}`);
-        if (onError) onError(`Disconnected: ${reason}`);
+        onErrorRef.current?.(`Disconnected: ${reason}`);
       });
 
       session.on('sdk-error', (err: any) => {
+        if (intentionalCloseRef.current || !stillCurrent()) return;
         console.error('[Deepgram AgentSession] Event: sdk-error:', err);
-        // #region agent log
         agentDbg('D', 'useDeepgramVoiceAgent.ts:sdk-error', 'AgentSession sdk-error', {
           msg: String(err?.message || err),
           name: err?.name,
         });
-        // #endregion
         setConnectionState('error');
         const desc = err?.message || 'Deepgram SDK connection failure';
         setErrorMessage(desc);
-        if (onError) onError(desc);
+        onErrorRef.current?.(desc);
       });
 
       session.on('error', (err: any) => {
+        if (intentionalCloseRef.current || !stillCurrent()) return;
         console.error('[Deepgram AgentSession] Event: server error:', err);
-        // #region agent log
         agentDbg('D', 'useDeepgramVoiceAgent.ts:server-error', 'AgentSession server error', {
           msg: err?.message || null,
           description: err?.description || null,
           code: err?.code || null,
           type: err?.type || null,
-          rawType: typeof err,
-          rawKeys: err && typeof err === 'object' ? Object.keys(err).slice(0, 12) : [],
         });
-        // #endregion
         setConnectionState('error');
-        const desc = err?.message || JSON.stringify(err);
+        const desc = err?.description || err?.message || JSON.stringify(err);
         setErrorMessage(desc);
-        if (onError) onError(desc);
+        onErrorRef.current?.(desc);
       });
 
       session.on('warning', (warn: any) => {
@@ -383,24 +467,27 @@ export function useDeepgramVoiceAgent({
       });
 
       session.on('audio', (chunk: ArrayBuffer) => {
+        if (!stillCurrent()) return;
         player.queue(chunk);
       });
 
       session.on('agent-started-speaking', () => {
+        if (!stillCurrent()) return;
         setSpeakerState('speaking-agent');
       });
 
       session.on('agent-thinking', () => {
+        if (!stillCurrent()) return;
         setSpeakerState('thinking');
       });
 
       session.on('agent-audio-done', () => {
+        if (!stillCurrent()) return;
         setSpeakerState('listening');
 
-        // If candidate provided an answer and agent finished speaking, log turn
         if (currentUserAnswerRef.current && currentAgentQuestionRef.current) {
           const turn: SessionTurn = {
-            session_id: sessionId,
+            session_id: sessionIdRef.current,
             turn_index: turnIndexRef.current++,
             speaker: 'agent',
             question_text: currentAgentQuestionRef.current,
@@ -413,14 +500,13 @@ export function useDeepgramVoiceAgent({
       });
 
       session.on('user-started-speaking', () => {
+        if (!stillCurrent()) return;
         setSpeakerState('speaking-user');
-        // Instantly interrupt agent playback when user speaks
-        if (player) {
-          player.interrupt();
-        }
+        player.interrupt();
       });
 
       session.on('conversation-text', (msg: any) => {
+        if (!stillCurrent()) return;
         const role = msg.role || (msg.speaker === 'assistant' ? 'agent' : 'user');
         const text = msg.content || msg.text || '';
         if (!text.trim()) return;
@@ -441,11 +527,10 @@ export function useDeepgramVoiceAgent({
         }
       });
 
-      // 7. Connect session first
       console.log('[Deepgram] Connecting AgentSession...');
       await session.connect();
+      if (!stillCurrent()) return;
 
-      // 8. Initialize Microphone and start streaming frames
       console.log('[Deepgram] Starting AgentMicrophone...');
       const mic = new AgentMicrophone((frame: ArrayBuffer) => {
         session.sendAudio(frame);
@@ -453,9 +538,16 @@ export function useDeepgramVoiceAgent({
 
       micRef.current = mic;
       await mic.start();
+      if (!stillCurrent()) {
+        try {
+          mic.stop();
+        } catch {
+          // ignore
+        }
+        return;
+      }
       console.log('[Deepgram] AgentMicrophone active and streaming');
 
-      // 9. Monitor volume levels for reactive orb animations
       volIntervalRef.current = setInterval(() => {
         if (mic) {
           const vol = typeof mic.getInputVolume === 'function' ? mic.getInputVolume() : 0;
@@ -463,19 +555,26 @@ export function useDeepgramVoiceAgent({
         }
       }, 80);
     } catch (err: any) {
+      if (!stillCurrent()) return;
       console.error('Failed to start Deepgram voice session:', err);
-      // #region agent log
       agentDbg('B', 'useDeepgramVoiceAgent.ts:startSession-catch', 'startSession threw', {
         msg: String(err?.message || err),
         name: err?.name,
       });
-      // #endregion
       const msg = err.message || 'Failed to connect to Deepgram Voice Agent.';
       setConnectionState('error');
       setErrorMessage(msg);
-      if (onError) onError(msg);
+      onErrorRef.current?.(msg);
     }
-  }, [sessionId, systemPrompt, agentConfig, syncTurnToServer, onError]);
+  }, [cleanupResources, syncTurnToServer]);
+
+  useEffect(() => {
+    if (!sessionId || !systemPrompt) return;
+    startSession();
+    return () => {
+      endSession({ silent: true });
+    };
+  }, [sessionId, systemPrompt, startSession, endSession]);
 
   const toggleMute = useCallback(() => {
     if (micRef.current) {
@@ -488,51 +587,6 @@ export function useDeepgramVoiceAgent({
       }
     }
   }, [isMuted]);
-
-  const endSession = useCallback(() => {
-    // #region agent log
-    agentDbg('A', 'useDeepgramVoiceAgent.ts:endSession', 'endSession called', {
-      hadSession: !!sessionRef.current,
-      hadMic: !!micRef.current,
-    });
-    // #endregion
-    if (volIntervalRef.current) {
-      clearInterval(volIntervalRef.current);
-      volIntervalRef.current = null;
-    }
-    if (micRef.current) {
-      try {
-        if (typeof micRef.current.stop === 'function') micRef.current.stop();
-      } catch (e) {
-        // ignore
-      }
-      micRef.current = null;
-    }
-    if (playerRef.current) {
-      try {
-        if (typeof playerRef.current.dispose === 'function') playerRef.current.dispose();
-      } catch (e) {
-        // ignore
-      }
-      playerRef.current = null;
-    }
-    if (sessionRef.current) {
-      try {
-        sessionRef.current.disconnect();
-      } catch (e) {
-        // ignore
-      }
-      sessionRef.current = null;
-    }
-    setConnectionState('disconnected');
-    setSpeakerState('idle');
-  }, []);
-
-  useEffect(() => {
-    return () => {
-      endSession();
-    };
-  }, [endSession]);
 
   return {
     connectionState,

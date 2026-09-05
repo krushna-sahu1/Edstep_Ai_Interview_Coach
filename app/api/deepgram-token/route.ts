@@ -38,26 +38,12 @@ export async function GET() {
       },
     });
   } catch (error: any) {
-    console.warn('Deepgram temp token generation failed, checking fallback to DEEPGRAM_API_KEY for dev environment:', error.message);
-    const directApiKey = process.env.DEEPGRAM_API_KEY;
-    if (directApiKey) {
-      // #region agent log
-      await debugLog({
-        hypothesisId: 'C',
-        location: 'deepgram-token/route.ts:fallback',
-        message: 'grant failed; falling back to raw API key',
-        data: { grantError: String(error?.message || ''), keyLen: directApiKey.length },
-      });
-      // #endregion
-      return new NextResponse(directApiKey, {
-        status: 200,
-        headers: {
-          'Content-Type': 'text/plain',
-          'Cache-Control': 'no-store, no-cache, must-revalidate',
-        },
-      });
-    }
-
+    await debugLog({
+      hypothesisId: 'C',
+      location: 'deepgram-token/route.ts:error',
+      message: 'grant failed; not falling back to raw API key',
+      data: { grantError: String(error?.message || '') },
+    });
     return NextResponse.json(
       { error: error.message || 'Failed to obtain Deepgram authentication token' },
       { status: 500 }
