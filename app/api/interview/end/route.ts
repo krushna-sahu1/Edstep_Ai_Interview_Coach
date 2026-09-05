@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSupabase } from '@/lib/supabase/server';
-import { scoreInterviewTranscript } from '@/lib/claude';
+import { scoreInterviewTranscript } from '@/lib/scoring';
 import { InterviewMode, SessionTurn } from '@/types/interview';
 
 export async function POST(req: NextRequest) {
