@@ -139,7 +139,10 @@ function defaultAgentSettings(systemPrompt: string) {
     listen: {
       provider: {
         type: 'deepgram',
-        model: 'nova-3',
+        version: 'v2',
+        model: 'flux-general-en',
+        eot_threshold: 0.85,
+        eot_timeout_ms: 8000,
       },
     },
     think: {
@@ -275,7 +278,7 @@ export function useDeepgramVoiceAgent({
     agentDbg('A', 'useDeepgramVoiceAgent.ts:startSession', 'startSession invoked', {
       runId,
       hasAgentConfig: !!config,
-      listenModel: config?.agent?.listen?.provider?.model || 'fallback-nova-3',
+      listenModel: config?.agent?.listen?.provider?.model || 'fallback-flux-general-en',
       speakModel: config?.agent?.speak?.provider?.model || 'fallback-aura-2-thalia-en',
       promptLen: prompt?.length || 0,
     });
@@ -326,6 +329,14 @@ export function useDeepgramVoiceAgent({
         ...defaultAgentSettings(prompt),
         ...(config?.agent || {}),
         language: config?.agent?.language || 'en',
+        listen: {
+          ...defaultAgentSettings(prompt).listen,
+          ...(config?.agent?.listen || {}),
+          provider: {
+            ...defaultAgentSettings(prompt).listen.provider,
+            ...(config?.agent?.listen?.provider || {}),
+          },
+        },
         think: {
           ...defaultAgentSettings(prompt).think,
           ...(config?.agent?.think || {}),

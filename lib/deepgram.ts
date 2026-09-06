@@ -57,7 +57,10 @@ export function buildDeepgramAgentConfig(systemPrompt: string) {
       listen: {
         provider: {
           type: 'deepgram' as const,
-          model: 'nova-3',
+          version: 'v2' as const,
+          model: 'flux-general-en',
+          eot_threshold: 0.85,
+          eot_timeout_ms: 8000,
         },
       },
       think: {
