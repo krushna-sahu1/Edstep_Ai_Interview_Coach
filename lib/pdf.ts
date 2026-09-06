@@ -1,8 +1,9 @@
-import pdfParse from 'pdf-parse';
+import { PDFParse } from 'pdf-parse';
 
 export async function parsePdfBuffer(buffer: Buffer): Promise<string> {
+  const parser = new PDFParse({ data: new Uint8Array(buffer) });
   try {
-    const data = await pdfParse(buffer);
+    const data = await parser.getText();
     const rawText = data.text || '';
     
     // Normalize whitespace and newlines
@@ -22,5 +23,7 @@ export async function parsePdfBuffer(buffer: Buffer): Promise<string> {
   } catch (error) {
     console.error('Error parsing PDF buffer:', error);
     throw new Error('Failed to parse uploaded PDF. Please ensure the file is a valid, unencrypted PDF.');
+  } finally {
+    await parser.destroy();
   }
 }
