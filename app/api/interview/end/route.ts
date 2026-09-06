@@ -46,7 +46,32 @@ export async function POST(req: NextRequest) {
         .eq('session_id', session_id)
         .order('turn_index', { ascending: true });
 
-      if (dbTurns && dbTurns.length > 0) {
+      const dbHasAnswers = dbTurns?.some((t) => Boolean(t.answer_transcript?.trim()));
+      const clientHasAnswers = clientTurns?.some((t: any) => Boolean(t.answer_transcript?.trim()) || t.speaker === 'user');
+
+      if (dbHasAnswers && dbTurns && dbTurns.length > 0) {
+        turns = dbTurns;
+      } else if (clientHasAnswers && clientTurns && clientTurns.length > 0) {
+        turns = clientTurns;
+        // Backfill DB so session_turns has complete dialogue
+        try {
+          if (!dbHasAnswers && dbTurns && dbTurns.length > 0) {
+            await supabase.from('session_turns').delete().eq('session_id', session_id);
+          }
+          await supabase.from('session_turns').insert(
+            clientTurns.map((t: any, idx: number) => ({
+              session_id,
+              turn_index: idx,
+              speaker: t.speaker || (t.answer_transcript ? 'user' : 'agent'),
+              question_text: t.question_text || '',
+              answer_transcript: t.answer_transcript || '',
+              timestamp: t.timestamp || new Date().toISOString(),
+            }))
+          );
+        } catch (syncErr) {
+          console.warn('Turn backfill warning:', syncErr);
+        }
+      } else if (dbTurns && dbTurns.length > 0) {
         turns = dbTurns;
       }
     }

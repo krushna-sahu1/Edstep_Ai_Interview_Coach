@@ -6,8 +6,23 @@ export function buildScoringPrompt(
   turns: SessionTurn[]
 ): string {
   const formattedTurns = turns
-    .map((t, idx) => `[Turn ${idx + 1}] (${t.speaker.toUpperCase()}): ${t.speaker === 'agent' ? t.question_text : t.answer_transcript}`)
-    .join('\n');
+    .map((t, idx) => {
+      const q = (t.question_text || '').trim();
+      const a = (t.answer_transcript || '').trim();
+
+      // If turn has both question and answer (paired turn from session_turns)
+      if (q && a) {
+        return `[Turn ${idx + 1}]\nInterviewer: ${q}\nCandidate: ${a}`;
+      }
+      // If turn represents candidate speaking
+      if (t.speaker === 'user' || (!q && a)) {
+        return `[Turn ${idx + 1}] Candidate: ${a || q}`;
+      }
+      // If turn represents interviewer speaking
+      return `[Turn ${idx + 1}] Interviewer: ${q || a}`;
+    })
+    .filter(Boolean)
+    .join('\n\n');
 
   const modeInstructions =
     mode === 'job'

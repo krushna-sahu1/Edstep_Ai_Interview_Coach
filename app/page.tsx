@@ -9,7 +9,7 @@ import { ContextBundle, InterviewMode } from '@/types/interview';
 
 export default function HomePage() {
   const router = useRouter();
-  const [activeMode, setActiveMode] = useState<InterviewMode>('job');
+  const [activeMode, setActiveMode] = useState<InterviewMode>('visa');
   const [isStarting, setIsStarting] = useState(false);
 
   const handleStartInterview = async (contextBundle: ContextBundle) => {
@@ -87,19 +87,19 @@ export default function HomePage() {
             <div className="mode-tabs-container">
               <button
                 type="button"
-                className={`mode-tab-btn ${activeMode === 'job' ? 'active' : ''}`}
-                onClick={() => setActiveMode('job')}
-              >
-                <Briefcase size={16} color={activeMode === 'job' ? '#A78BFA' : 'currentColor'} />
-                Job Interview Mode
-              </button>
-              <button
-                type="button"
                 className={`mode-tab-btn ${activeMode === 'visa' ? 'active' : ''}`}
                 onClick={() => setActiveMode('visa')}
               >
                 <Plane size={16} color={activeMode === 'visa' ? '#3FA96A' : 'currentColor'} />
                 Visa Consular Mode
+              </button>
+              <button
+                type="button"
+                className={`mode-tab-btn ${activeMode === 'job' ? 'active' : ''}`}
+                onClick={() => setActiveMode('job')}
+              >
+                <Briefcase size={16} color={activeMode === 'job' ? '#A78BFA' : 'currentColor'} />
+                Job Interview Mode
               </button>
             </div>
           </div>
@@ -109,10 +109,10 @@ export default function HomePage() {
       {/* Main Interactive Form Card */}
       <section style={{ maxWidth: '780px', margin: '0 auto', padding: '0 24px 64px' }}>
         <div className="v2-card">
-          {activeMode === 'job' ? (
-            <JobSetupForm onStart={handleStartInterview} isLoading={isStarting} />
-          ) : (
+          {activeMode === 'visa' ? (
             <VisaSetupForm onStart={handleStartInterview} isLoading={isStarting} />
+          ) : (
+            <JobSetupForm onStart={handleStartInterview} isLoading={isStarting} />
           )}
         </div>
       </section>

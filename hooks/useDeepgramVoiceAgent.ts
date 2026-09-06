@@ -251,6 +251,18 @@ export function useDeepgramVoiceAgent({
         hadSession: !!sessionRef.current,
         hadMic: !!micRef.current,
       });
+      if (currentUserAnswerRef.current && currentAgentQuestionRef.current) {
+        const turn: SessionTurn = {
+          session_id: sessionIdRef.current,
+          turn_index: turnIndexRef.current++,
+          speaker: 'agent',
+          question_text: currentAgentQuestionRef.current,
+          answer_transcript: currentUserAnswerRef.current,
+          timestamp: new Date().toISOString(),
+        };
+        syncTurnToServer(turn);
+        currentUserAnswerRef.current = '';
+      }
       cleanupResources();
       setSpeakerState('idle');
       if (!options?.silent) {
@@ -330,11 +342,12 @@ export function useDeepgramVoiceAgent({
         ...(config?.agent || {}),
         language: config?.agent?.language || 'en',
         listen: {
-          ...defaultAgentSettings(prompt).listen,
-          ...(config?.agent?.listen || {}),
           provider: {
-            ...defaultAgentSettings(prompt).listen.provider,
-            ...(config?.agent?.listen?.provider || {}),
+            type: 'deepgram',
+            version: 'v2',
+            model: 'flux-general-en',
+            eot_threshold: 0.85,
+            eot_timeout_ms: 8000,
           },
         },
         think: {
@@ -532,6 +545,19 @@ export function useDeepgramVoiceAgent({
         setTranscripts((prev) => [...prev, newItem]);
 
         if (newItem.speaker === 'agent') {
+          // If candidate provided an answer to the prior question, commit that completed turn
+          if (currentUserAnswerRef.current && currentAgentQuestionRef.current) {
+            const turn: SessionTurn = {
+              session_id: sessionIdRef.current,
+              turn_index: turnIndexRef.current++,
+              speaker: 'agent',
+              question_text: currentAgentQuestionRef.current,
+              answer_transcript: currentUserAnswerRef.current,
+              timestamp: new Date().toISOString(),
+            };
+            syncTurnToServer(turn);
+            currentUserAnswerRef.current = '';
+          }
           currentAgentQuestionRef.current = text;
         } else {
           currentUserAnswerRef.current = (currentUserAnswerRef.current + ' ' + text).trim();
