@@ -20,7 +20,7 @@ export class GeminiScoringProvider implements ScoringProvider {
     }
 
     const prompt = buildScoringPrompt(mode, contextBundle, turns);
-    const modelName = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
+    const modelName = process.env.GEMINI_MODEL || 'gemini-3.6-flash';
 
     try {
       const response = await fetch(
