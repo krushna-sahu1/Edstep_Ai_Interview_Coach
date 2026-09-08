@@ -59,8 +59,8 @@ export function buildDeepgramAgentConfig(systemPrompt: string) {
           type: 'deepgram' as const,
           version: 'v2' as const,
           model: 'flux-general-en',
-          eot_threshold: 0.85,
-          eot_timeout_ms: 8000,
+          eot_threshold: 0.9,
+          eot_timeout_ms: 2800,
         },
       },
       think: {

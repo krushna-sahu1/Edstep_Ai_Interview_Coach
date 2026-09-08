@@ -141,8 +141,8 @@ function defaultAgentSettings(systemPrompt: string) {
         type: 'deepgram',
         version: 'v2',
         model: 'flux-general-en',
-        eot_threshold: 0.85,
-        eot_timeout_ms: 8000,
+        eot_threshold: 0.9,
+        eot_timeout_ms: 2800,
       },
     },
     think: {
@@ -346,8 +346,8 @@ export function useDeepgramVoiceAgent({
             type: 'deepgram',
             version: 'v2',
             model: 'flux-general-en',
-            eot_threshold: 0.85,
-            eot_timeout_ms: 8000,
+            eot_threshold: 0.9,
+            eot_timeout_ms: 2800,
           },
         },
         think: {
