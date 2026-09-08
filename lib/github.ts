@@ -1,4 +1,14 @@
 import { GitHubRepoContext } from '@/types/interview';
+import dns from 'node:dns';
+
+// Ensure IPv4 first on Node/Windows to prevent long IPv6 connection timeouts to api.github.com
+try {
+  if (typeof dns.setDefaultResultOrder === 'function') {
+    dns.setDefaultResultOrder('ipv4first');
+  }
+} catch {
+  // ignore in unsupported runtimes
+}
 
 export function extractGitHubUsername(inputUrlOrUsername: string): string | null {
   const trimmed = inputUrlOrUsername.trim().replace(/^@/, '');

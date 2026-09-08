@@ -1,4 +1,3 @@
-import { PDFParse } from 'pdf-parse';
 import zlib from 'zlib';
 
 function decodePdfString(str: string): string {
@@ -135,6 +134,7 @@ export async function parsePdfBuffer(buffer: Buffer): Promise<string> {
   let parser: any = null;
 
   try {
+    const { PDFParse } = await import('pdf-parse');
     parser = new PDFParse({ data: new Uint8Array(buffer) });
 
     // Catch errors on getTextPromise immediately to prevent unhandled rejections

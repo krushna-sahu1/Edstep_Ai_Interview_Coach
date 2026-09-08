@@ -111,7 +111,7 @@ export async function POST(req: NextRequest) {
       context_bundle: contextBundle,
     });
   } catch (error: any) {
-    console.error('Job prepare unhandled error:', error);
+    console.error('[API /api/job/prepare FATAL ERROR]:', error?.stack || error);
     return NextResponse.json(
       { error: error?.message || 'Internal server error while preparing context bundle.' },
       { status: 500 }
