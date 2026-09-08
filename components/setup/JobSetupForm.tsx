@@ -69,9 +69,20 @@ export default function JobSetupForm({ onStart, isLoading }: JobSetupFormProps) 
         body: formData,
       });
 
-      const data = await res.json();
+      const responseText = await res.text();
+      let data: any = {};
+      try {
+        data = responseText ? JSON.parse(responseText) : {};
+      } catch {
+        throw new Error(
+          res.ok
+            ? 'Received unexpected response format from server.'
+            : `Server error (${res.status}): ${responseText.slice(0, 120) || 'No response body'}`
+        );
+      }
+
       if (!res.ok) {
-        throw new Error(data.error || 'Failed to prepare interview context.');
+        throw new Error(data.error || `Failed to prepare interview context (${res.status}).`);
       }
 
       onStart(data.context_bundle);

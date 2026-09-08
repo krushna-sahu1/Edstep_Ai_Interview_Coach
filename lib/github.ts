@@ -1,17 +1,31 @@
 import { GitHubRepoContext } from '@/types/interview';
 
 export function extractGitHubUsername(inputUrlOrUsername: string): string | null {
-  const trimmed = inputUrlOrUsername.trim();
+  const trimmed = inputUrlOrUsername.trim().replace(/^@/, '');
   if (!trimmed) return null;
 
-  // Handles https://github.com/username, github.com/username, or plain username
-  const match = trimmed.match(/(?:https?:\/\/)?(?:www\.)?github\.com\/([a-zA-Z0-9-_]+)\/?$/i);
-  if (match && match[1]) {
-    return match[1];
+  try {
+    const urlStr = trimmed.startsWith('http://') || trimmed.startsWith('https://')
+      ? trimmed
+      : trimmed.includes('github.com')
+        ? `https://${trimmed}`
+        : null;
+
+    if (urlStr) {
+      const url = new URL(urlStr);
+      if (url.hostname.includes('github.com')) {
+        const parts = url.pathname.split('/').filter(Boolean);
+        if (parts.length > 0 && /^[a-zA-Z0-9_-]+$/.test(parts[0])) {
+          return parts[0];
+        }
+      }
+    }
+  } catch {
+    // ignore URL parsing error
   }
 
-  // If already just a username (no slashes)
-  if (/^[a-zA-Z0-9-_]+$/.test(trimmed)) {
+  // Pure username
+  if (/^[a-zA-Z0-9_-]+$/.test(trimmed)) {
     return trimmed;
   }
 
@@ -24,15 +38,18 @@ export async function fetchGitHubProjects(username: string): Promise<GitHubRepoC
     'User-Agent': 'AI-Mock-Interview-Coach',
   };
 
-  const githubToken = process.env.GITHUB_TOKEN;
+  const githubToken = process.env.GITHUB_TOKEN?.trim();
   if (githubToken) {
     headers.Authorization = `Bearer ${githubToken}`;
   }
 
   try {
     const reposRes = await fetch(
-      `https://api.github.com/users/${encodeURIComponent(username)}/repos?sort=pushed&direction=desc&per_page=3`,
-      { headers, next: { revalidate: 300 } }
+      `https://api.github.com/users/${encodeURIComponent(username)}/repos?sort=pushed&direction=desc&per_page=6`,
+      {
+        headers,
+        signal: AbortSignal.timeout(6000),
+      }
     );
 
     if (!reposRes.ok) {
@@ -40,7 +57,7 @@ export async function fetchGitHubProjects(username: string): Promise<GitHubRepoC
         throw new Error(`GitHub user "${username}" was not found.`);
       }
       if (reposRes.status === 403) {
-        throw new Error('GitHub API rate limit exceeded. Please try again later or provide a GITHUB_TOKEN.');
+        throw new Error('GitHub API rate limit exceeded. Please try again later or configure a GITHUB_TOKEN.');
       }
       throw new Error(`GitHub API returned status ${reposRes.status}`);
     }
@@ -50,32 +67,39 @@ export async function fetchGitHubProjects(username: string): Promise<GitHubRepoC
       return [];
     }
 
+    // Prefer non-fork repositories if available
+    const nonForks = reposData.filter((r: any) => !r.fork);
+    const candidateRepos = (nonForks.length > 0 ? nonForks : reposData).slice(0, 3);
+
     const projects: GitHubRepoContext[] = await Promise.all(
-      reposData.map(async (repo: any) => {
+      candidateRepos.map(async (repo: any) => {
         let readmeSummary: string | null = null;
 
         try {
           const readmeRes = await fetch(
             `https://api.github.com/repos/${encodeURIComponent(username)}/${encodeURIComponent(repo.name)}/readme`,
-            { headers, next: { revalidate: 300 } }
+            {
+              headers,
+              signal: AbortSignal.timeout(3500),
+            }
           );
 
           if (readmeRes.ok) {
             const readmeData = await readmeRes.json();
             if (readmeData.content) {
               const decoded = Buffer.from(readmeData.content, 'base64').toString('utf-8');
-              // Clean markdown badges, markdown images, and excess whitespace
+              // Clean markdown badges, images, HTML tags, and excessive spacing
               const cleaned = decoded
                 .replace(/!\[.*?\]\(.*?\)/g, '')
                 .replace(/\[!\[.*?\]\(.*?\)\]\(.*?\)/g, '')
                 .replace(/<[^>]*>/g, '')
                 .replace(/\n\s*\n+/g, '\n')
                 .trim();
-              readmeSummary = cleaned.slice(0, 600);
+              readmeSummary = cleaned.slice(0, 800);
             }
           }
         } catch {
-          // README fetch is best-effort; ignore errors
+          // README fetch is best-effort
         }
 
         return {
@@ -91,7 +115,7 @@ export async function fetchGitHubProjects(username: string): Promise<GitHubRepoC
 
     return projects;
   } catch (error: any) {
-    console.error('Error fetching GitHub repositories:', error);
+    console.error(`Error fetching GitHub repositories for "${username}":`, error?.message || error);
     throw error;
   }
 }
